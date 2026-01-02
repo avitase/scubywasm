@@ -88,6 +88,14 @@ wrap(const float x, const float x_min, const float x_max)
     return x + (period * ((float)(x < x_min) - ((float)(x >= x_max))));
 }
 
+[[nodiscard]] static float
+clamp(const float x, const float x_min, const float x_max)
+{
+    return x
+        + ((x_min - x) * (float)(x < x_min))
+        + ((x_max - x) * (float)(x > x_max));
+}
+
 [[nodiscard]] static float approx_sin(float x)
 {
     x -= (x >= 360.F) * 360.F;
@@ -274,7 +282,7 @@ int32_t set_action(struct Context *ctx, const struct Action action)
     // action: fire
     if (fire)
     {
-        const float r = cfg->ship_hit_radius;
+        const float r = cfg->ship_hit_radius * 1.001F;
         ctx->shots[idx] = (struct Shot){
             .kinematics =
                 {
@@ -299,29 +307,46 @@ int32_t set_action(struct Context *ctx, const struct Action action)
     };
 }
 
-[[nodiscard]] static float toroidal_d2(const struct Vec2D a,
-                                       const struct Vec2D b)
+[[nodiscard]] static float doca2(const struct Kinematics obj1,
+                                 const struct Kinematics obj2)
 {
-    const float dx = wrap(a.x - b.x, -.5F, .5F);
-    const float dy = wrap(a.y - b.y, -.5F, .5F);
+    const struct Vec2D v = {
+        .x = obj1.v * obj1.heading.x - obj2.v * obj2.heading.x,
+        .y = obj1.v * obj1.heading.y - obj2.v * obj2.heading.y};
+    const float v2 = v.x * v.x + v.y * v.y;
 
-    return dx * dx + dy * dy;
+    const struct Vec2D p = {.x = obj1.pos.x - obj2.pos.x,
+                            .y = obj1.pos.y - obj2.pos.y};
+
+    float min_d2 = 10.F; // an unreasonably large distance on the unit torus
+    for (int32_t dx = -1; dx <= 1; dx++)
+    {
+        for (int32_t dy = -1; dy <= 1; dy++)
+        {
+            const struct Vec2D q = {.x = p.x - (float)dx, .y = p.y - (float)dy};
+            const float qv = (q.x * v.x) + (q.y * v.y);
+            const float t = clamp((v2 < 1e-30F) ? 0.F : -qv / v2, 0.F, 1.F);
+
+            const struct Vec2D d = {.x = q.x + v.x * t, .y = q.y + v.y * t};
+            const float d2 = d.x * d.x + d.y * d.y;
+
+            min_d2 = (d2 < min_d2) ? d2 : min_d2;
+        }
+    }
+
+    return min_d2;
+}
+
+[[nodiscard]] static int32_t sweep_test(const struct Kinematics obj1,
+                                        const struct Kinematics obj2,
+                                        const float threshold)
+{
+    return doca2(obj1, obj2) < threshold;
 }
 
 static void tick_once(struct Context *ctx)
 {
     const uint32_t n = ctx->n_agents;
-
-    // propagate ships & shots
-    for (uint32_t i = 0; i < n; i++)
-    {
-        struct Ship *ship = ctx->ships + i;
-        ship->kinematics.pos = propagate(ship->kinematics);
-
-        struct Shot *shot = ctx->shots + i;
-        shot->kinematics.pos = propagate(shot->kinematics);
-        shot->lifetime -= (shot->lifetime > 0);
-    }
 
     // check for collisions ships <> shots
     const float r = ctx->cfg.ship_hit_radius;
@@ -332,10 +357,11 @@ static void tick_once(struct Context *ctx)
         for (uint32_t j = 0; j < n; j++)
         {
             struct Ship *ship = ctx->ships + j;
-            if (shot->lifetime > 0
-                && toroidal_d2(shot->kinematics.pos, ship->kinematics.pos) < r2)
+            if (shot->lifetime != 0
+                && ship->is_alive != 0
+                && sweep_test(shot->kinematics, ship->kinematics, r2))
             {
-                shot->lifetime = 0;
+                shot->lifetime = -1;
                 ship->is_alive = -1;
 
                 ctx->scores[i] += 2;
@@ -352,8 +378,7 @@ static void tick_once(struct Context *ctx)
         {
             struct Ship *ship2 = ctx->ships + j;
             if (ship1->is_alive * ship2->is_alive != 0
-                && toroidal_d2(ship1->kinematics.pos, ship2->kinematics.pos)
-                    < 4.F * r2)
+                && sweep_test(ship1->kinematics, ship2->kinematics, 4.F * r2))
             {
                 ship1->is_alive = -1;
                 ship2->is_alive = -1;
@@ -364,11 +389,16 @@ static void tick_once(struct Context *ctx)
         }
     }
 
-    // mark hit ships as dead (not alive)
+    // propagate ships & shots
     for (uint32_t i = 0; i < n; i++)
     {
         struct Ship *ship = ctx->ships + i;
+        ship->kinematics.pos = propagate(ship->kinematics);
         ship->is_alive = (ship->is_alive == 1);
+
+        struct Shot *shot = ctx->shots + i;
+        shot->kinematics.pos = propagate(shot->kinematics);
+        shot->lifetime = (shot->lifetime > 0) ? shot->lifetime - 1 : 0;
     }
 }
 
