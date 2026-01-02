@@ -278,10 +278,10 @@ int32_t set_action(
         return -3;
     }
 
-    const uint32_t thrust = ((flags & ACTION_THRUST) == 0U);
-    const uint32_t turn_left = ((flags & ACTION_TURN_LEFT) == 0U);
-    const uint32_t turn_right = ((flags & ACTION_TURN_RIGHT) == 0U);
-    const uint32_t fire = ((flags & ACTION_FIRE) == 0U);
+    const uint32_t thrust = ((flags & ACTION_THRUST) != 0U);
+    const uint32_t turn_left = ((flags & ACTION_TURN_LEFT) != 0U);
+    const uint32_t turn_right = ((flags & ACTION_TURN_RIGHT) != 0U);
+    const uint32_t fire = ((flags & ACTION_FIRE) != 0U);
 
     const struct Config *cfg = &(ctx->cfg);
     struct Kinematics *ship = &(ctx->ships[idx].kinematics);
