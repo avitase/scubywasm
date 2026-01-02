@@ -88,6 +88,11 @@ wrap(const float x, const float x_min, const float x_max)
     return x + (period * ((float)(x < x_min) - ((float)(x >= x_max))));
 }
 
+[[nodiscard]] static float wrap_angle(const float x)
+{
+    return wrap(x, 0.F, 360.F);
+}
+
 [[nodiscard]] static float
 clamp(const float x, const float x_min, const float x_max)
 {
@@ -98,7 +103,7 @@ clamp(const float x, const float x_min, const float x_max)
 
 [[nodiscard]] static float approx_sin(float x)
 {
-    x -= (x >= 360.F) * 360.F;
+    x = wrap_angle(x);
 
     static const float y[64] = {
         0.0F,         0.09956785F,  0.19814614F,  0.29475517F,  0.38843480F,
@@ -144,7 +149,7 @@ clamp(const float x, const float x_min, const float x_max)
     const float sign_v = (v < 0.F) ? -1.F : 1.F;
     const float angle = 90.F + sign_v * (((A * r * r - B) * r) - 45.F);
 
-    return wrap((u < 0.F) ? (360.F - angle) : angle, 0.F, 360.F);
+    return wrap_angle((u < 0.F) ? (360.F - angle) : angle);
 }
 
 #if FREESTANDING
