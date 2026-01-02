@@ -14,8 +14,8 @@ extern "C"
 
 struct Action
 {
-    unsigned int agent_id : 16;
-    unsigned int type : 16;
+    uint16_t agent_id;
+    uint16_t type;
 };
 
 enum ActionType : unsigned int
