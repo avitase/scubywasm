@@ -91,9 +91,9 @@ wrap(const float x, const float x_min, const float x_max)
 [[nodiscard]] static float
 clamp(const float x, const float x_min, const float x_max)
 {
-    return x
-        + ((x_min - x) * (float)(x < x_min))
-        + ((x_max - x) * (float)(x > x_max));
+    const float dx =
+        ((x_min - x) * (float)(x < x_min)) + ((x_max - x) * (float)(x > x_max));
+    return x + dx;
 }
 
 [[nodiscard]] static float approx_sin(float x)
@@ -357,8 +357,7 @@ static void tick_once(struct Context *ctx)
         for (uint32_t j = 0; j < n; j++)
         {
             struct Ship *ship = ctx->ships + j;
-            if (shot->lifetime != 0
-                && ship->is_alive != 0
+            if (shot->lifetime != 0 && ship->is_alive != 0
                 && sweep_test(shot->kinematics, ship->kinematics, r2))
             {
                 shot->lifetime = -1;
