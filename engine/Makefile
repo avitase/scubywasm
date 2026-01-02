@@ -53,10 +53,10 @@ build/engine.wasm: engine.c | build
 	$< -o $@
 
 build/unit_tests: engine.c test/engine_tests.c | build
-	$(CC) -std=c23 $(WARNINGS) -O0 -g -fsanitize=address,undefined -fno-omit-frame-pointer -I. -DFREESTANDING=0 test/engine_tests.c test/unity.c -o $@
+	$(CC) -std=c23 $(WARNINGS) -O0 -g -fsanitize=address,undefined -fno-omit-frame-pointer -I. -DFREESTANDING=0 test/engine_tests.c test/unity.c -o $@ -lm
 
 build/unit_tests_cov: engine.c test/engine_tests.c | build
-	$(CC) -std=c23 $(WARNINGS) -O0 -g -fprofile-instr-generate -fcoverage-mapping -I. -DFREESTANDING=0 test/engine_tests.c test/unity.c -o $@
+	$(CC) -std=c23 $(WARNINGS) -O0 -g -fprofile-instr-generate -fcoverage-mapping -I. -DFREESTANDING=0 test/engine_tests.c test/unity.c -o $@ -lm
 
 build/coverage.profdata: build/unit_tests_cov
 	LLVM_PROFILE_FILE=build/coverage.profraw ./build/unit_tests_cov
