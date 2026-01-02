@@ -31,6 +31,10 @@
 #    define DEFAULT_SHOT_LIFETIME 500
 #endif
 
+#ifndef SHOT_SPAWN_MARGIN
+#    define SHOT_SPAWN_MARGIN 1.001F
+#endif
+
 #define AGENT_ID_XOR_MASK 0xABCD
 static_assert(
     AGENT_ID_XOR_MASK <= 0xFFFF,
@@ -292,7 +296,7 @@ int32_t set_action(struct Context *ctx, const struct Action action)
     // action: fire
     if (fire)
     {
-        const float r = cfg->ship_hit_radius * 1.001F;
+        const float r = cfg->ship_hit_radius * SHOT_SPAWN_MARGIN;
         ctx->shots[idx] = (struct Shot){
             .kinematics =
                 {
