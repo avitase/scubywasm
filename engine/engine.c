@@ -254,14 +254,16 @@ uint32_t add_agent(struct Context *ctx, const struct Pose pose)
     return agent_index_to_id(n);
 }
 
-int32_t set_action(struct Context *ctx, const struct Action action)
+int32_t set_action(struct Context *ctx,
+                   const uint32_t agent_id,
+                   const enum ActionFlags flags)
 {
     if (ctx == NULL)
     {
         return -1;
     }
 
-    const uint32_t idx = agent_id_to_index(action.agent_id);
+    const uint32_t idx = agent_id_to_index(agent_id);
     if (idx >= MAX_AGENTS)
     {
         return -2;
@@ -272,11 +274,10 @@ int32_t set_action(struct Context *ctx, const struct Action action)
         return -3;
     }
 
-    const enum ActionFlags f = action.flags;
-    const uint32_t thrust = ((f & ACTION_THRUST) == ACTION_THRUST);
-    const uint32_t turn_left = ((f & ACTION_TURN_LEFT) == ACTION_TURN_LEFT);
-    const uint32_t turn_right = ((f & ACTION_TURN_RIGHT) == ACTION_TURN_RIGHT);
-    const uint32_t fire = ((f & ACTION_FIRE) == ACTION_FIRE);
+    const uint32_t thrust = ((flags & ACTION_THRUST) == 0U);
+    const uint32_t turn_left = ((flags & ACTION_TURN_LEFT) == 0U);
+    const uint32_t turn_right = ((flags & ACTION_TURN_RIGHT) == 0U);
+    const uint32_t fire = ((flags & ACTION_FIRE) == 0U);
 
     const struct Config *cfg = &(ctx->cfg);
     struct Kinematics *ship = &(ctx->ships[idx].kinematics);

@@ -12,12 +12,6 @@ extern "C"
 {
 #endif
 
-struct Action
-{
-    uint16_t agent_id;
-    uint16_t flags;
-};
-
 enum ActionFlags : unsigned int
 {
     ACTION_NONE = 0x00,
@@ -61,7 +55,7 @@ void free_context(struct Context *ctx);
 
 uint32_t add_agent(struct Context *ctx, struct Pose);
 
-int32_t set_action(struct Context *ctx, struct Action);
+int32_t set_action(struct Context *ctx, uint32_t agent_id, enum ActionFlags);
 
 uint32_t tick(struct Context *ctx, uint32_t n_times);
 
