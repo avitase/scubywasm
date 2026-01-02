@@ -280,8 +280,8 @@ int32_t set_action(struct Context *ctx, const struct Action action)
     // action: thrust
     ship->v = thrust ? cfg->ship_max_velocity : 0.F;
 
-    // action: turn left or right
-    if (turn_left ^ turn_right)
+    // action: turn left xor right
+    if (turn_left != turn_right)
     {
         const float angle = approx_heading_angle(ship->heading)
             + ((turn_left ? -1.F : 1.F) * cfg->ship_max_turn_rate);
