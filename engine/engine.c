@@ -263,11 +263,11 @@ int32_t set_action(struct Context *ctx, const struct Action action)
         return -3;
     }
 
-    const enum ActionType t = action.type;
-    const uint32_t thrust = ((t & ACTION_THRUST) == ACTION_THRUST);
-    const uint32_t turn_left = ((t & ACTION_TURN_LEFT) == ACTION_TURN_LEFT);
-    const uint32_t turn_right = ((t & ACTION_TURN_RIGHT) == ACTION_TURN_RIGHT);
-    const uint32_t fire = ((t & ACTION_FIRE) == ACTION_FIRE);
+    const enum ActionFlags f = action.flags;
+    const uint32_t thrust = ((f & ACTION_THRUST) == ACTION_THRUST);
+    const uint32_t turn_left = ((f & ACTION_TURN_LEFT) == ACTION_TURN_LEFT);
+    const uint32_t turn_right = ((f & ACTION_TURN_RIGHT) == ACTION_TURN_RIGHT);
+    const uint32_t fire = ((f & ACTION_FIRE) == ACTION_FIRE);
 
     const struct Config *cfg = &(ctx->cfg);
     struct Kinematics *ship = &(ctx->ships[idx].kinematics);

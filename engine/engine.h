@@ -15,10 +15,10 @@ extern "C"
 struct Action
 {
     uint16_t agent_id;
-    uint16_t type;
+    uint16_t flags;
 };
 
-enum ActionType : unsigned int
+enum ActionFlags : unsigned int
 {
     ACTION_NONE = 0x00,
     ACTION_THRUST = 0x01,
