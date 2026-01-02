@@ -247,15 +247,20 @@ uint32_t add_agent(struct Context *ctx, const struct Pose pose)
 
 int32_t set_action(struct Context *ctx, const struct Action action)
 {
-    const uint32_t idx = agent_id_to_index(action.agent_id);
-    if (idx >= MAX_AGENTS)
+    if (ctx == NULL)
     {
         return -1;
     }
 
-    if (ctx->ships[idx].is_alive != 1)
+    const uint32_t idx = agent_id_to_index(action.agent_id);
+    if (idx >= MAX_AGENTS)
     {
         return -2;
+    }
+
+    if (ctx->ships[idx].is_alive != 1)
+    {
+        return -3;
     }
 
     const enum ActionType t = action.type;
