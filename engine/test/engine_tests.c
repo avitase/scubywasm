@@ -31,7 +31,7 @@ void test_add_agent_adds_ship_and_no_shot(void)
 {
     const struct Pose init_pose = {.x = 0.F, .y = 0.F, .heading = 45.F};
     const uint32_t id = add_agent(ctx, init_pose);
-    TEST_ASSERT_TRUE(id > 0);
+    TEST_ASSERT_GREATER_THAN(0, id);
 
     TEST_ASSERT_EQUAL_INT32(1, is_alive(ctx, id));
 
