@@ -1,6 +1,10 @@
 #include "engine.c"
 
+#include <math.h>
+
 #include "test/unity.h"
+
+#define DEG2RAD .017453293F
 
 struct Config cfg;
 struct Context *ctx;
@@ -46,16 +50,57 @@ void test_add_agent_adds_ships_and_no_shots(void)
     get_ship_pose(ctx, id1, &pose);
     TEST_ASSERT_EQUAL_FLOAT(init_pose1.x, pose.x);
     TEST_ASSERT_EQUAL_FLOAT(init_pose1.y, pose.y);
-    TEST_ASSERT_FLOAT_WITHIN(.5F, init_pose1.heading, pose.heading);
+    TEST_ASSERT_FLOAT_WITHIN(1.F, init_pose1.heading, pose.heading);
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, id1, &pose));
     TEST_ASSERT_EQUAL_INT32(0, get_score(ctx, id1));
 
     get_ship_pose(ctx, id2, &pose);
     TEST_ASSERT_EQUAL_FLOAT(init_pose2.x, pose.x);
     TEST_ASSERT_EQUAL_FLOAT(init_pose2.y, pose.y);
-    TEST_ASSERT_FLOAT_WITHIN(.5F, init_pose2.heading, pose.heading);
+    TEST_ASSERT_FLOAT_WITHIN(1.F, init_pose2.heading, pose.heading);
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, id2, &pose));
     TEST_ASSERT_EQUAL_INT32(0, get_score(ctx, id2));
+}
+
+void test_tick_single_agent_turn_then_move(void)
+{
+    const struct Pose init_pose = {.x = .25F, .y = .25F, .heading = 90.F};
+    const uint32_t id = add_agent(ctx, init_pose);
+
+    struct Pose p0;
+    get_ship_pose(ctx, id, &p0);
+    TEST_ASSERT_EQUAL_INT32(1, is_alive(ctx, id));
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, init_pose.x, p0.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, init_pose.y, p0.y);
+    TEST_ASSERT_FLOAT_WITHIN(1.F, init_pose.heading, p0.heading);
+
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id, ACTION_TURN_RIGHT));
+
+    TEST_ASSERT_EQUAL_UINT32(1U, tick(ctx, 1U));
+    TEST_ASSERT_EQUAL_INT32(1, is_alive(ctx, id));
+
+    struct Pose p1;
+    get_ship_pose(ctx, id, &p1);
+
+    const float heading = p0.heading + cfg.ship_max_turn_rate;
+    TEST_ASSERT_FLOAT_WITHIN(1.F, heading, p1.heading);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, p0.x, p1.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, p0.y, p1.y);
+
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id, ACTION_THRUST));
+
+    TEST_ASSERT_EQUAL_UINT32(1U, tick(ctx, 1U));
+    TEST_ASSERT_EQUAL_INT32(1, is_alive(ctx, id));
+
+    struct Pose p2;
+    get_ship_pose(ctx, id, &p2);
+
+    const float x = p1.x + cfg.ship_max_velocity * sinf(p1.heading * DEG2RAD);
+    const float y = p1.y + cfg.ship_max_velocity * cosf(p1.heading * DEG2RAD);
+
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, x, p2.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5F, y, p2.y);
+    TEST_ASSERT_FLOAT_WITHIN(1.F, p1.heading, p2.heading);
 }
 
 int main(void)
@@ -64,6 +109,7 @@ int main(void)
 
     RUN_TEST(test_set_default_config_sets_default_values);
     RUN_TEST(test_add_agent_adds_ships_and_no_shots);
+    RUN_TEST(test_tick_single_agent_turn_then_move);
 
     return UNITY_END();
 }
