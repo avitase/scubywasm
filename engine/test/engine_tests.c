@@ -1,9 +1,5 @@
 #include "engine.c"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "test/unity.h"
 
 struct Config cfg;
@@ -17,7 +13,7 @@ void setUp(void)
 
 void tearDown(void)
 {
-    free(ctx);
+    free_context(ctx);
 }
 
 void test_set_default_config_sets_default_values(void)
