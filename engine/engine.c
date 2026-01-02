@@ -124,6 +124,8 @@ clamp(const float x, const float x_min, const float x_max)
         -0.71586685F, -0.64278761F, -0.56332006F, -0.47825398F, -0.38843480F,
         -0.29475517F, -0.19814614F, -0.09956785F, 0.0F,
     };
+
+    // NOLINTNEXTLINE(bugprone-integer-division)
     const float n = (float)(sizeof(y) / sizeof(y[0])) - 1.0F;
 
     const uint32_t idx = (uint32_t)((x / 360.F) * n);
@@ -151,7 +153,7 @@ clamp(const float x, const float x_min, const float x_max)
     const float A = 11.2471615F;
     const float B = 56.2472667F;
     const float sign_v = (v < 0.F) ? -1.F : 1.F;
-    const float angle = 90.F + sign_v * (((A * r * r - B) * r) - 45.F);
+    const float angle = 90.F + (sign_v * (((A * r * r - B) * r) - 45.F));
 
     return wrap_angle((u < 0.F) ? (360.F - angle) : angle);
 }
@@ -254,9 +256,11 @@ uint32_t add_agent(struct Context *ctx, const struct Pose pose)
     return agent_index_to_id(n);
 }
 
-int32_t set_action(struct Context *ctx,
-                   const uint32_t agent_id,
-                   const enum ActionFlags flags)
+int32_t set_action(
+    struct Context *ctx,
+    const uint32_t agent_id,     // NOLINT(bugprone-easily-swappable-parameters)
+    const enum ActionFlags flags // NOLINT(bugprone-easily-swappable-parameters)
+)
 {
     if (ctx == NULL)
     {
@@ -301,8 +305,8 @@ int32_t set_action(struct Context *ctx,
         ctx->shots[idx] = (struct Shot){
             .kinematics =
                 {
-                    .pos = {.x = ship->pos.x + r * ship->heading.x,
-                            .y = ship->pos.y + r * ship->heading.y},
+                    .pos = {.x = ship->pos.x + (r * ship->heading.x),
+                            .y = ship->pos.y + (r * ship->heading.y)},
                     .heading = ship->heading,
                     .v = cfg->shot_velocity,
                 },
@@ -317,8 +321,8 @@ int32_t set_action(struct Context *ctx,
 {
     const float v = kinematics.v;
     return (struct Vec2D){
-        .x = wrap(kinematics.pos.x + v * kinematics.heading.x, 0.F, 1.F),
-        .y = wrap(kinematics.pos.y + v * kinematics.heading.y, 0.F, 1.F),
+        .x = wrap(kinematics.pos.x + (v * kinematics.heading.x), 0.F, 1.F),
+        .y = wrap(kinematics.pos.y + (v * kinematics.heading.y), 0.F, 1.F),
     };
 }
 
@@ -326,9 +330,9 @@ int32_t set_action(struct Context *ctx,
                                  const struct Kinematics obj2)
 {
     const struct Vec2D v = {
-        .x = obj1.v * obj1.heading.x - obj2.v * obj2.heading.x,
-        .y = obj1.v * obj1.heading.y - obj2.v * obj2.heading.y};
-    const float v2 = v.x * v.x + v.y * v.y;
+        .x = (obj1.v * obj1.heading.x) - (obj2.v * obj2.heading.x),
+        .y = (obj1.v * obj1.heading.y) - (obj2.v * obj2.heading.y)};
+    const float v2 = (v.x * v.x) + (v.y * v.y);
 
     const struct Vec2D p = {.x = obj1.pos.x - obj2.pos.x,
                             .y = obj1.pos.y - obj2.pos.y};
@@ -342,8 +346,8 @@ int32_t set_action(struct Context *ctx,
             const float qv = (q.x * v.x) + (q.y * v.y);
             const float t = clamp((v2 < 1e-30F) ? 0.F : -qv / v2, 0.F, 1.F);
 
-            const struct Vec2D d = {.x = q.x + v.x * t, .y = q.y + v.y * t};
-            const float d2 = d.x * d.x + d.y * d.y;
+            const struct Vec2D d = {.x = q.x + (v.x * t), .y = q.y + (v.y * t)};
+            const float d2 = (d.x * d.x) + (d.y * d.y);
 
             min_d2 = (d2 < min_d2) ? d2 : min_d2;
         }
