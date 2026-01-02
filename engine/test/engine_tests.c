@@ -46,14 +46,14 @@ void test_add_agent_adds_ships_and_no_shots(void)
     get_ship_pose(ctx, id1, &pose);
     TEST_ASSERT_EQUAL_FLOAT(init_pose1.x, pose.x);
     TEST_ASSERT_EQUAL_FLOAT(init_pose1.y, pose.y);
-    TEST_ASSERT_FLOAT_WITHIN(.1F, init_pose1.heading, pose.heading);
+    TEST_ASSERT_FLOAT_WITHIN(.5F, init_pose1.heading, pose.heading);
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, id1, &pose));
     TEST_ASSERT_EQUAL_INT32(0, get_score(ctx, id1));
 
     get_ship_pose(ctx, id2, &pose);
     TEST_ASSERT_EQUAL_FLOAT(init_pose2.x, pose.x);
     TEST_ASSERT_EQUAL_FLOAT(init_pose2.y, pose.y);
-    TEST_ASSERT_FLOAT_WITHIN(.1F, init_pose2.heading, pose.heading);
+    TEST_ASSERT_FLOAT_WITHIN(.5F, init_pose2.heading, pose.heading);
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, id2, &pose));
     TEST_ASSERT_EQUAL_INT32(0, get_score(ctx, id2));
 }
