@@ -92,11 +92,6 @@ wrap(const float x, const float x_min, const float x_max)
     return x + (period * ((float)(x < x_min) - ((float)(x >= x_max))));
 }
 
-[[nodiscard]] static float wrap_angle(const float x)
-{
-    return wrap(x, 0.F, 360.F);
-}
-
 [[nodiscard]] static float
 clamp(const float x, const float x_min, const float x_max)
 {
@@ -107,33 +102,13 @@ clamp(const float x, const float x_min, const float x_max)
 
 [[nodiscard]] static float approx_sin(float x)
 {
-    x = wrap_angle(x);
+    x = wrap(x, 0.F, 360.F);
 
-    static const float y[64] = {
-        0.0F,         0.09956785F,  0.19814614F,  0.29475517F,  0.38843480F,
-        0.47825398F,  0.56332006F,  0.64278761F,  0.71586685F,  0.78183148F,
-        0.84002592F,  0.88987181F,  0.93087375F,  0.96262425F,  0.98480775F,
-        0.99720380F,  0.99968918F,  0.99223921F,  0.97492791F,  0.94792735F,
-        0.91150585F,  0.86602540F,  0.81193801F,  0.74978120F,  0.68017274F,
-        0.60380441F,  0.52143520F,  0.43388374F,  0.34202014F,  0.24675740F,
-        0.14904227F,  0.04984589F,  -0.04984589F, -0.14904227F, -0.24675740F,
-        -0.34202014F, -0.43388374F, -0.52143520F, -0.60380441F, -0.68017274F,
-        -0.74978120F, -0.81193801F, -0.86602540F, -0.91150585F, -0.94792735F,
-        -0.97492791F, -0.99223921F, -0.99968918F, -0.99720380F, -0.98480775F,
-        -0.96262425F, -0.93087375F, -0.88987181F, -0.84002592F, -0.78183148F,
-        -0.71586685F, -0.64278761F, -0.56332006F, -0.47825398F, -0.38843480F,
-        -0.29475517F, -0.19814614F, -0.09956785F, 0.0F,
-    };
+    const float sign = (x <= 180.F) ? 1.F : -1.F;
+    x -= (1.F - sign) * 90.F;
 
-    // NOLINTNEXTLINE(bugprone-integer-division)
-    const float n = (float)(sizeof(y) / sizeof(y[0])) - 1.0F;
-
-    const uint32_t idx = (uint32_t)((x / 360.F) * n);
-    const float dx = 360.F / n;
-    const float x0 = (float)idx * dx;
-    const float t = (x - x0) / dx;
-
-    return ((1.F - t) * y[idx]) + (t * y[idx + 1]);
+    // Bhāskara I's sine approximation
+    return sign * 4.F * x * (180.F - x) / (40500.F - x * (180.F - x));
 }
 
 [[nodiscard]] static float approx_cos(const float x)
@@ -146,16 +121,22 @@ clamp(const float x, const float x_min, const float x_max)
     const float u = heading.x;
     const float v = heading.y;
 
+    const float sign_u = (u < 0.F) ? -1.F : 1.F;
+    const float sign_v = (v < 0.F) ? -1.F : 1.F;
     const float abs_u = (u < 0.F) ? -u : u;
     const float abs_v = (v < 0.F) ? -v : v;
+
     const float r = (abs_v - abs_u) / (abs_v + abs_u);
+    const float r2 = r * r;
 
-    const float A = 11.2471615F;
-    const float B = 56.2472667F;
-    const float sign_v = (v < 0.F) ? -1.F : 1.F;
-    const float angle = 90.F + (sign_v * (((A * r * r - B) * r) - 45.F));
+    const float A = 4.87001792F;
+    const float B = -17.05931736F;
+    const float C = 57.18929944F;
 
-    return wrap_angle((u < 0.F) ? (360.F - angle) : angle);
+    // NOLINTNEXTLINE(readability-math-missing-parentheses)
+    const float angle = 90.F - sign_v * (45.F + (((A * r2 + B) * r2) + C) * r);
+
+    return 180.F + (sign_u * (angle - 180.F));
 }
 
 #if FREESTANDING
