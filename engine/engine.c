@@ -31,8 +31,8 @@
 #    define DEFAULT_SHOT_LIFETIME 500
 #endif
 
-#ifndef SHOT_SPAWN_MARGIN
-#    define SHOT_SPAWN_MARGIN 1.001F
+#ifndef SHOT_SPAWN_CLEARANCE_FACTOR
+#    define SHOT_SPAWN_CLEARANCE_FACTOR 1.001F
 #endif
 
 #define AGENT_ID_XOR_MASK 0xABCD
@@ -282,7 +282,7 @@ int32_t set_action(
     // action: fire
     if (fire)
     {
-        const float r = cfg->ship_hit_radius * SHOT_SPAWN_MARGIN;
+        const float r = cfg->ship_hit_radius * SHOT_SPAWN_CLEARANCE_FACTOR;
         ctx->shots[idx] = (struct Shot){
             .kinematics =
                 {
