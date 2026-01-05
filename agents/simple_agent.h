@@ -23,7 +23,7 @@ struct Context *init_agent(uint32_t n_agents);
 
 void free_context(struct Context *ctx);
 
-void set_config_parameter(Context *ctx, enum ConfigParameter, float value);
+void set_config_parameter(struct Context *ctx, enum ConfigParameter, float value);
 
 void clear_world_state(struct Context *ctx);
 
