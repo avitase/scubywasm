@@ -42,6 +42,7 @@ build/engine.wasm: engine.c | build
 	-Wl,--export=get_config_buffer \
 	-Wl,--export=set_default_config \
 	-Wl,--export=create_context \
+	-Wl,--export=free_context \
 	-Wl,--export=get_pose_buffer \
 	-Wl,--export=add_agent \
 	-Wl,--export=set_action \
