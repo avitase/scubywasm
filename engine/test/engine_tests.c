@@ -147,6 +147,34 @@ void test_tick_single_agent_turn_then_move(void)
     TEST_ASSERT_FLOAT_WITHIN(.1F, p1.heading, p2.heading);
 }
 
+void test_tick_kills_both_on_ship_collision(void)
+{
+    const float r = cfg.ship_hit_radius;
+
+    /*
+     * Start *just* outside the collision radius (2r), then thrust both ships
+     * towards each other so that they collide within the next tick.
+     */
+    const float d = 2.F * r + .5F * cfg.ship_max_velocity;
+    const struct Pose p1 = {.x = .5F, .y = .5F, .heading = 0.F};
+    const struct Pose p2 = {.x = .5F, .y = .5F + d, .heading = 180.F};
+
+    const uint32_t id1 = add_agent(ctx, &p1);
+    const uint32_t id2 = add_agent(ctx, &p2);
+
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id1, ACTION_THRUST));
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id2, ACTION_THRUST));
+
+    // one tick should resolve the ship <> ship collision and kill both
+    TEST_ASSERT_EQUAL_UINT32(0U, tick(ctx, 1U));
+    TEST_ASSERT_EQUAL_INT32(0, is_alive(ctx, id1));
+    TEST_ASSERT_EQUAL_INT32(0, is_alive(ctx, id2));
+
+    // ship <> ship collision penalizes both
+    TEST_ASSERT_EQUAL_INT32(-1, get_score(ctx, id1));
+    TEST_ASSERT_EQUAL_INT32(-1, get_score(ctx, id2));
+}
+
 void test_tick_kills_on_shot_hit(void)
 {
     const float r = cfg.ship_hit_radius;
@@ -199,32 +227,68 @@ void test_tick_kills_on_shot_hit(void)
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, shooter_id, &shot_pose));
 }
 
-void test_tick_kills_both_on_ship_collision(void)
+void test_set_action_only_allows_refire_after_shot_vanishes(void)
 {
+    // same setup as in test_tick_kills_on_shot_hit()
     const float r = cfg.ship_hit_radius;
+    const float shooter_x = .5F;
+    const float shooter_y = .2F;
+    const float target_y = shooter_y + (r * SHOT_SPAWN_CLEARANCE_FACTOR) + r
+        + (1.5F * cfg.shot_velocity);
 
-    /*
-     * Start *just* outside the collision radius (2r), then thrust both ships
-     * towards each other so that they collide within the next tick.
-     */
-    const float d = 2.F * r + .5F * cfg.ship_max_velocity;
-    const struct Pose p1 = {.x = .5F, .y = .5F, .heading = 0.F};
-    const struct Pose p2 = {.x = .5F, .y = .5F + d, .heading = 180.F};
+    const struct Pose shooter_pose = {
+        .x = shooter_x, .y = shooter_y, .heading = 0.F};
+    const struct Pose target_pose = {
+        .x = shooter_x, .y = target_y, .heading = 180.F};
 
-    const uint32_t id1 = add_agent(ctx, &p1);
-    const uint32_t id2 = add_agent(ctx, &p2);
+    const uint32_t shooter_id = add_agent(ctx, &shooter_pose);
+    const uint32_t target_id = add_agent(ctx, &target_pose);
 
-    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id1, ACTION_THRUST));
-    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id2, ACTION_THRUST));
+    // fire: spawn a shot
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, shooter_id, ACTION_FIRE));
 
-    // one tick should resolve the ship <> ship collision and kill both
-    TEST_ASSERT_EQUAL_UINT32(0U, tick(ctx, 1U));
-    TEST_ASSERT_EQUAL_INT32(0, is_alive(ctx, id1));
-    TEST_ASSERT_EQUAL_INT32(0, is_alive(ctx, id2));
+    struct Pose p0;
+    TEST_ASSERT_EQUAL_INT32(cfg.shot_lifetime,
+                            get_shot_pose(ctx, shooter_id, &p0));
 
-    // ship <> ship collision penalizes both
-    TEST_ASSERT_EQUAL_INT32(-1, get_score(ctx, id1));
-    TEST_ASSERT_EQUAL_INT32(-1, get_score(ctx, id2));
+    // tick 1:
+    // shot advances, but should not hit yet
+    TEST_ASSERT_EQUAL_UINT32(2U, tick(ctx, 1U));
+
+    struct Pose p1;
+    TEST_ASSERT_EQUAL_INT32(cfg.shot_lifetime - 1,
+                            get_shot_pose(ctx, shooter_id, &p1));
+    TEST_ASSERT_TRUE(p1.y > p0.y);
+
+    // fire again while shot is alive: must not respawn/reset
+    TEST_ASSERT_LESS_THAN(0, set_action(ctx, shooter_id, ACTION_FIRE));
+
+    struct Pose p2;
+    TEST_ASSERT_EQUAL_INT32(cfg.shot_lifetime - 1,
+                            get_shot_pose(ctx, shooter_id, &p2));
+    TEST_ASSERT_FLOAT_WITHIN(1e-6F, p1.x, p2.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-6F, p1.y, p2.y);
+
+    // tick 2:
+    // shot hits target, target dies, shot vanishes
+    TEST_ASSERT_EQUAL_UINT32(1U, tick(ctx, 1U));
+    TEST_ASSERT_EQUAL_INT32(1, is_alive(ctx, shooter_id));
+    TEST_ASSERT_EQUAL_INT32(0, is_alive(ctx, target_id));
+    TEST_ASSERT_EQUAL_INT32(2, get_score(ctx, shooter_id));
+    TEST_ASSERT_EQUAL_INT32(-1, get_score(ctx, target_id));
+
+    struct Pose p3;
+    TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, shooter_id, &p3));
+
+    // after vanish: firing is allowed again and spawns a fresh shot at the
+    // muzzle
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, shooter_id, ACTION_FIRE));
+
+    struct Pose p4;
+    TEST_ASSERT_EQUAL_INT32(cfg.shot_lifetime,
+                            get_shot_pose(ctx, shooter_id, &p4));
+    TEST_ASSERT_FLOAT_WITHIN(1e-6F, p0.x, p4.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-6F, p0.y, p4.y);
 }
 
 int main(void)
@@ -233,10 +297,11 @@ int main(void)
 
     RUN_TEST(test_set_default_config_sets_default_values);
     RUN_TEST(test_add_agent_adds_ships_and_no_shots);
-    RUN_TEST(test_tick_single_agent_turn_then_move);
-    RUN_TEST(test_tick_kills_on_shot_hit);
-    RUN_TEST(test_tick_kills_both_on_ship_collision);
     RUN_TEST(test_tick_wraps_ship_over_world_edges);
+    RUN_TEST(test_tick_single_agent_turn_then_move);
+    RUN_TEST(test_tick_kills_both_on_ship_collision);
+    RUN_TEST(test_tick_kills_on_shot_hit);
+    RUN_TEST(test_set_action_only_allows_refire_after_shot_vanishes);
 
     return UNITY_END();
 }
