@@ -209,7 +209,7 @@ void free_context(struct Context *ctx)
     return agent_id_to_index(agent_index);
 }
 
-uint32_t add_agent(struct Context *ctx, const struct Pose pose)
+uint32_t add_agent(struct Context *ctx, const struct Pose *pose)
 {
     if (ctx == NULL)
     {
@@ -225,12 +225,12 @@ uint32_t add_agent(struct Context *ctx, const struct Pose pose)
     ctx->n_agents = n + 1;
     ctx->scores[n] = 0;
 
-    ctx->ships[n] =
-        (struct Ship){.kinematics = {.pos = {.x = pose.x, .y = pose.y},
-                                     .heading = {.x = approx_sin(pose.heading),
-                                                 .y = approx_cos(pose.heading)},
-                                     .v = 0.F},
-                      .is_alive = 1};
+    ctx->ships[n] = (struct Ship){
+        .kinematics = {.pos = {.x = pose->x, .y = pose->y},
+                       .heading = {.x = approx_sin(pose->heading),
+                                   .y = approx_cos(pose->heading)},
+                       .v = 0.F},
+        .is_alive = 1};
 
     ctx->shots[n].lifetime = 0;
 

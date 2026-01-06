@@ -53,7 +53,7 @@ void free_context(struct Context *ctx);
 [[nodiscard]] struct Pose *get_pose_buffer(void);
 #endif
 
-uint32_t add_agent(struct Context *ctx, struct Pose);
+uint32_t add_agent(struct Context *ctx, const struct Pose *pose);
 
 int32_t set_action(struct Context *ctx, uint32_t agent_id, enum ActionFlags);
 

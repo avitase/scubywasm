@@ -36,8 +36,8 @@ void test_add_agent_adds_ships_and_no_shots(void)
     const struct Pose init_pose1 = {.x = .5F, .y = 0.F, .heading = 45.F};
     const struct Pose init_pose2 = {.x = 0.F, .y = .5F, .heading = 300.F};
 
-    const uint32_t id1 = add_agent(ctx, init_pose1);
-    const uint32_t id2 = add_agent(ctx, init_pose2);
+    const uint32_t id1 = add_agent(ctx, &init_pose1);
+    const uint32_t id2 = add_agent(ctx, &init_pose2);
     TEST_ASSERT_GREATER_THAN(0, id1);
     TEST_ASSERT_GREATER_THAN(0, id2);
     TEST_ASSERT_TRUE(id1 != id2);
@@ -72,10 +72,10 @@ void test_tick_wraps_ship_over_world_edges(void)
     struct Pose p_top = {.x = .25F, .y = 1.F - .5F * v, .heading = 0.F};
     struct Pose p_bottom = {.x = .75F, .y = .5F * v, .heading = 180.F};
 
-    const uint32_t id_right = add_agent(ctx, p_right);
-    const uint32_t id_left = add_agent(ctx, p_left);
-    const uint32_t id_top = add_agent(ctx, p_top);
-    const uint32_t id_bottom = add_agent(ctx, p_bottom);
+    const uint32_t id_right = add_agent(ctx, &p_right);
+    const uint32_t id_left = add_agent(ctx, &p_left);
+    const uint32_t id_top = add_agent(ctx, &p_top);
+    const uint32_t id_bottom = add_agent(ctx, &p_bottom);
 
     TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id_right, ACTION_THRUST));
     TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id_left, ACTION_THRUST));
@@ -110,7 +110,7 @@ void test_tick_wraps_ship_over_world_edges(void)
 void test_tick_single_agent_turn_then_move(void)
 {
     const struct Pose init_pose = {.x = .25F, .y = .25F, .heading = 90.F};
-    const uint32_t id = add_agent(ctx, init_pose);
+    const uint32_t id = add_agent(ctx, &init_pose);
 
     // tick 1:
     // apply turn-right only (no translation)
@@ -170,8 +170,8 @@ void test_tick_kills_on_shot_hit(void)
     const struct Pose target_pose = {
         .x = shooter_x, .y = target_y, .heading = 180.F};
 
-    const uint32_t shooter_id = add_agent(ctx, shooter_pose);
-    const uint32_t target_id = add_agent(ctx, target_pose);
+    const uint32_t shooter_id = add_agent(ctx, &shooter_pose);
+    const uint32_t target_id = add_agent(ctx, &target_pose);
 
     TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, shooter_id, ACTION_FIRE));
 
@@ -211,8 +211,8 @@ void test_tick_kills_both_on_ship_collision(void)
     const struct Pose p1 = {.x = .5F, .y = .5F, .heading = 0.F};
     const struct Pose p2 = {.x = .5F, .y = .5F + d, .heading = 180.F};
 
-    const uint32_t id1 = add_agent(ctx, p1);
-    const uint32_t id2 = add_agent(ctx, p2);
+    const uint32_t id1 = add_agent(ctx, &p1);
+    const uint32_t id2 = add_agent(ctx, &p2);
 
     TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id1, ACTION_THRUST));
     TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, id2, ACTION_THRUST));
