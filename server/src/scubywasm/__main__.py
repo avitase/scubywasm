@@ -21,5 +21,7 @@ def main():
     game = Game(engine_wasm, agent_wasms)
     print(game.tick())
 
+    return 0
+
 
 raise SystemExit(main())
