@@ -264,11 +264,6 @@ int32_t set_action(
     const uint32_t turn_right = ((flags & ACTION_TURN_RIGHT) != 0U);
     const uint32_t fire = ((flags & ACTION_FIRE) != 0U);
 
-    if (fire && ctx->shots[idx].lifetime > 0)
-    {
-        return -4;
-    }
-
     const struct Config *cfg = &(ctx->cfg);
     struct Kinematics *ship = &(ctx->ships[idx].kinematics);
 
@@ -285,7 +280,7 @@ int32_t set_action(
     }
 
     // action: fire
-    if (fire)
+    if (fire && ctx->shots[idx].lifetime <= 0)
     {
         const float r = cfg->ship_hit_radius * SHOT_SPAWN_CLEARANCE_FACTOR;
         ctx->shots[idx] = (struct Shot){

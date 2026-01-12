@@ -277,7 +277,7 @@ void test_set_action_only_allows_refire_after_shot_vanishes(void)
     TEST_ASSERT_TRUE(p1.y > p0.y);
 
     // fire again while shot is alive: must not respawn/reset
-    TEST_ASSERT_LESS_THAN(0, set_action(ctx, shooter_id, ACTION_FIRE));
+    TEST_ASSERT_EQUAL_INT32(0, set_action(ctx, shooter_id, ACTION_FIRE));
 
     struct Pose p2;
     TEST_ASSERT_EQUAL_INT32(cfg.shot_lifetime - 1,
