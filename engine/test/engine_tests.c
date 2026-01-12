@@ -1,6 +1,7 @@
 #include "engine.c"
 
 #include <math.h>
+#include <stdio.h>
 
 #include "test/unity.h"
 
@@ -60,6 +61,21 @@ void test_add_agent_adds_ships_and_no_shots(void)
     TEST_ASSERT_FLOAT_WITHIN(.1F, init_pose2.heading, pose.heading);
     TEST_ASSERT_EQUAL_INT32(0, get_shot_pose(ctx, id2, &pose));
     TEST_ASSERT_EQUAL_INT32(0, get_score(ctx, id2));
+}
+
+void test_shot_spawn_outside_of_ship_hit_radius(void)
+{
+    const float threshold = 1.F / SHOT_SPAWN_CLEARANCE_FACTOR;
+
+    for (int i = 0; i < 25; i++)
+    {
+        const float angle = (float)i * 15.F; // 0, 15, 30, ..., 360
+        const float norm = hypotf(approx_sin(angle), approx_cos(angle));
+
+        char msg[32];
+        snprintf(msg, sizeof(msg), "Angle: %.0f degrees.", (double)angle);
+        TEST_ASSERT_GREATER_THAN_FLOAT_MESSAGE(threshold, norm, msg);
+    }
 }
 
 void test_tick_wraps_ship_over_world_edges(void)
@@ -297,6 +313,7 @@ int main(void)
 
     RUN_TEST(test_set_default_config_sets_default_values);
     RUN_TEST(test_add_agent_adds_ships_and_no_shots);
+    RUN_TEST(test_shot_spawn_outside_of_ship_hit_radius);
     RUN_TEST(test_tick_wraps_ship_over_world_edges);
     RUN_TEST(test_tick_single_agent_turn_then_move);
     RUN_TEST(test_tick_kills_both_on_ship_collision);
