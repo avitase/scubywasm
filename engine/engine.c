@@ -392,12 +392,13 @@ static void tick_once(struct Context *ctx)
     for (uint32_t i = 0; i < n; i++)
     {
         struct Ship *ship = ctx->ships + i;
-        ship->kinematics.pos = propagate(ship->kinematics);
         ship->is_alive = (ship->is_alive == 1);
+        ship->kinematics.pos = propagate(ship->kinematics);
+        ship->kinematics.v *= (float)(ship->is_alive);
 
         struct Shot *shot = ctx->shots + i;
-        shot->kinematics.pos = propagate(shot->kinematics);
         shot->lifetime = (shot->lifetime > 0) ? shot->lifetime - 1 : 0;
+        shot->kinematics.pos = propagate(shot->kinematics);
     }
 }
 
