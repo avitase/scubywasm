@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-scubywasm = "scubywasm.__main__:main"
+scubywasm = "scubywasm.game:main"
 scubywasm-display = "scubywasm.display:main"
 
 [dependency-groups]
@@ -29,10 +29,10 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle
-    "F",    # Pyflakes
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "SIM",  # flake8-simplify
-    "I",    # isort
+    "E", # pycodestyle
+    "F", # Pyflakes
+    "UP", # pyupgrade
+    "B", # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I", # isort
 ]

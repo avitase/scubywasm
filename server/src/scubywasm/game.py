@@ -1,3 +1,6 @@
+import argparse
+import json
+import pathlib
 import random
 
 import wasmtime
@@ -68,7 +71,7 @@ class Game:
                 "shots": {
                     agent_id: dict(x=[], y=[], lifetime=[]) for agent_id in batch
                 },
-                "scores": {agent_id: [] for agent_id in batch},
+                "scores": [],
             }
             for batch in batched_agent_ids
         ]
@@ -86,11 +89,12 @@ class Game:
         for i, (agent, agent_ids) in enumerate(self._teams):
             agent.clear_world_state()
 
+            acc_score = 0
             for agent_id in agent_ids:
                 is_alive = self._engine.is_alive(agent_id)
 
                 ship_pose = self._engine.get_ship_pose(agent_id)
-                team_alive[i] = True
+                team_alive[i] |= is_alive
 
                 ship = self._log[i]["ships"][agent_id]
                 ship["x"].append(round(ship_pose.x, 4))
@@ -105,12 +109,14 @@ class Game:
                 shot["lifetime"].append(lifetime)
 
                 score = self._engine.get_score(agent_id)
-                self._log[i]["scores"][agent_id].append(score)
+                acc_score += score
 
                 for other, _ in self._teams:
                     other.update_ship(agent_id, is_alive=is_alive, pose=ship_pose)
                     other.update_shot(agent_id, lifetime=lifetime, pose=shot_pose)
                     other.update_score(agent_id, score=score)
+
+            self._log[i]["scores"].append(acc_score)
 
         for agent, agent_ids in self._teams:
             for agent_id in agent_ids:
@@ -121,3 +127,61 @@ class Game:
         self.ticks += n_times
 
         return sum(team_alive)
+
+
+def main():
+    max_ticks = 1_000
+
+    parser = argparse.ArgumentParser(prog="Scubywasm")
+    parser.add_argument("engine_wasmfile", type=pathlib.Path)
+    parser.add_argument("agent_wasmfile", nargs="+", type=pathlib.Path)
+    parser.add_argument("--seed", type=int, help="Seed for random engine.")
+    parser.add_argument(
+        "--multiplicity", default=1, type=int, help="Agent multiplicity. (Default: 1)"
+    )
+    parser.add_argument(
+        "--max_ticks",
+        default=max_ticks,
+        type=int,
+        help=f"Max. number of ticks. (Default: {max_ticks})",
+    )
+    parser.add_argument(
+        "--log_json",
+        type=pathlib.Path,
+        metavar="FILE",
+        help="Write the game log (JSON) to FILE instead of stdout.",
+    )
+
+    args = parser.parse_args()
+    max_ticks = max(1, args.max_ticks)
+
+    with open(args.engine_wasmfile, "rb") as f:
+        engine_wasm = f.read()
+
+    agent_wasms = []
+    for file_name in args.agent_wasmfile:
+        with open(file_name, "rb") as f:
+            agent_wasms.append(f.read())
+
+    game = Game(
+        engine_wasm, agent_wasms, seed=args.seed, agent_multiplicity=args.multiplicity
+    )
+
+    for _ in range(max_ticks):
+        n_teams_alive = game.tick()
+        if n_teams_alive <= 1:
+            break
+
+    if args.log_json is None:
+        print(game.log)
+    else:
+        args.log_json.parent.mkdir(parents=True, exist_ok=True)
+        with args.log_json.open("w", encoding="utf-8") as f:
+            json.dump(game.log, f)
+            f.write("\n")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
