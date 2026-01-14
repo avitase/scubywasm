@@ -82,7 +82,11 @@ class Game:
 
     @property
     def log(self):
-        return self._log
+        return {
+            "ticks": self.ticks,
+            "ship_hit_radius": round(self._engine.config.ship_hit_radius, 3),
+            "log": self._log,
+        }
 
     def tick(self, n_times=1):
         team_alive = [False] * len(self._teams)
@@ -146,10 +150,11 @@ def main():
         help=f"Max. number of ticks. (Default: {max_ticks})",
     )
     parser.add_argument(
-        "--log_json",
+        "-o",
         type=pathlib.Path,
+        dest="file_name",
         metavar="FILE",
-        help="Write the game log (JSON) to FILE instead of stdout.",
+        help="Write the game log to FILE instead of stdout.",
     )
 
     args = parser.parse_args()
@@ -172,11 +177,11 @@ def main():
         if n_teams_alive <= 1:
             break
 
-    if args.log_json is None:
-        print(game.log)
+    if args.file_name is None:
+        print(json.dumps(game.log))
     else:
-        args.log_json.parent.mkdir(parents=True, exist_ok=True)
-        with args.log_json.open("w", encoding="utf-8") as f:
+        args.file_name.parent.mkdir(parents=True, exist_ok=True)
+        with args.file_name.open("w", encoding="utf-8") as f:
             json.dump(game.log, f)
             f.write("\n")
 
