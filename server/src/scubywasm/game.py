@@ -167,14 +167,8 @@ def main():
     args = parser.parse_args()
     max_ticks = max(1, args.max_ticks)
 
-    with open(args.engine_wasmfile, "rb") as f:
-        engine_wasm = f.read()
-
-    agent_wasms = []
-    for file_name in args.agent_wasmfile:
-        with open(file_name, "rb") as f:
-            agent_wasms.append(f.read())
-
+    engine_wasm = args.engine_wasmfile.read_bytes()
+    agent_wasms = [file_name.read_bytes() for file_name in args.agent_wasmfile]
     game = Game(
         engine_wasm, agent_wasms, seed=args.seed, agent_multiplicity=args.multiplicity
     )
