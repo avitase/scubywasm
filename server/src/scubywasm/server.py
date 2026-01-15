@@ -67,9 +67,9 @@ def _run_game(*, engine_wasm, agents_dir, agent_multiplicity, seed, max_ticks):
 
     log = game.log["history"]
     final_scores = [team["scores"][-1] for team in log]
-    teams = [f"{file.parent.name} / {file.stem}" for file in agent_wasmfiles]
+    teams = [f"{file.parent.name}/{file.stem}" for file in agent_wasmfiles]
 
-    return game.log | dict(teams=teams, final_scores=final_scores)
+    return dict(teams=teams, final_scores=final_scores) | game.log
 
 
 def _ignore_sigint():

@@ -59,6 +59,23 @@ def main():
     data = json.loads(args.logfile.read_text())
     log = data["history"]
 
+    n_teams = len(log)
+    team_names = (
+        data["teams"] if "teams" in data else [f"Team {i + 1}" for i in range(n_teams)]
+    )
+    team_colors = [
+        (230, 80, 80),  # red
+        (90, 160, 230),  # blue
+        (140, 210, 110),  # green
+        (200, 120, 220),  # purple
+        (240, 170, 70),  # orange
+        (90, 200, 170),  # teal
+        (240, 220, 90),  # yellow
+        (230, 120, 170),  # rose
+        (140, 120, 230),  # indigo
+        (200, 200, 200),  # gray
+    ][:n_teams]
+
     ticks = int(data["ticks"])
     max_tick = max(0, ticks)
     ship_hit_radius = float(data["ship_hit_radius"])
@@ -74,19 +91,6 @@ def main():
 
         r_ship = max(2, int(ship_hit_radius * min(width, height)))
         r_shot = 5
-
-        team_colors = [
-            (230, 80, 80),  # red
-            (90, 160, 230),  # blue
-            (140, 210, 110),  # green
-            (200, 120, 220),  # purple
-            (240, 170, 70),  # orange
-            (90, 200, 170),  # teal
-            (240, 220, 90),  # yellow
-            (230, 120, 170),  # rose
-            (140, 120, 230),  # indigo
-            (200, 200, 200),  # gray
-        ]
 
         t = 0.0
         running = True
@@ -151,9 +155,8 @@ def main():
                 ("SCORES", color),
             ]
 
-            for i, team in enumerate(log):
-                color = team_colors[i % len(team_colors)]
-                items.append((f"  Team {i + 1}: {team['scores'][tick]:+d}", color))
+            for name, color, history in zip(team_names, team_colors, log):
+                items.append((f"  {name}: {history['scores'][tick]:+d}", color))
 
             blit_overlay(screen, font, items)
 
