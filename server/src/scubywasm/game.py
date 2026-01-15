@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import pathlib
 import random
 
@@ -47,16 +48,20 @@ class Game:
                 )
         else:
             rng = random.Random(seed)
-            phi = 1.61803398875  # golden ratio
+
+            grid_size = math.ceil(math.sqrt(n * m))
+            grid_spacing = 1.0 / grid_size
             init_poses = [
                 Pose(
-                    x=(i / phi + 0.5) % 1.0,
-                    y=(i / (n * m) + 0.5) % 1.0,
+                    x=((i + rng.uniform(0.4, 0.6)) * grid_spacing),
+                    y=((j + rng.uniform(0.4, 0.6)) * grid_spacing),
                     heading=360 * rng.random(),
                 )
-                for i in range(n * m)
+                for i in range(grid_size)
+                for j in range(grid_size)
             ]
             rng.shuffle(init_poses)
+            init_poses = init_poses[: n * m]
 
         agent_ids = [self._engine.add_agent(pose) for pose in init_poses]
         batched_agent_ids = [agent_ids[i * m : (i + 1) * m] for i in range(n)]
