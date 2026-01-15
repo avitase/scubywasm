@@ -60,7 +60,7 @@ def main():
     log = data["log"]
 
     ticks = int(data["ticks"])
-    max_tick = max(0, ticks - 1)
+    max_tick = max(0, ticks)
     ship_hit_radius = float(data["ship_hit_radius"])
 
     pygame.init()

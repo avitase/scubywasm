@@ -132,10 +132,12 @@ class Game:
                 action = agent.make_action(agent_id, self.ticks)
                 self._engine.set_action(agent_id, action)
 
-        self._engine.tick(n_times)
-        self.ticks += n_times
+        n_teams_alive = sum(team_alive)
+        if n_teams_alive > 1:
+            self._engine.tick(n_times)
+            self.ticks += n_times
 
-        return sum(team_alive)
+        return n_teams_alive
 
 
 def main():
