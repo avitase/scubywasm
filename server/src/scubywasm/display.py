@@ -57,7 +57,7 @@ def main():
     args = parser.parse_args()
 
     data = json.loads(args.logfile.read_text())
-    log = data["log"]
+    log = data["history"]
 
     ticks = int(data["ticks"])
     max_tick = max(0, ticks)

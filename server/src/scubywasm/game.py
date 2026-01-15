@@ -90,7 +90,7 @@ class Game:
         return {
             "ticks": self.ticks,
             "ship_hit_radius": round(self._engine.config.ship_hit_radius, 3),
-            "log": self._log,
+            "history": self._log,
         }
 
     def tick(self, n_times=1):
@@ -182,7 +182,7 @@ def main():
         print(json.dumps(game.log))
     else:
         args.file_name.parent.mkdir(parents=True, exist_ok=True)
-        with args.file_name.open("w", encoding="utf-8") as f:
+        with args.file_name.open("w") as f:
             json.dump(game.log, f)
             f.write("\n")
 

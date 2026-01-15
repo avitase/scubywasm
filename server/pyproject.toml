@@ -11,6 +11,7 @@ dependencies = [
 
 [project.scripts]
 scubywasm = "scubywasm.game:main"
+scubywasm-server = "scubywasm.server:main"
 scubywasm-show = "scubywasm.display:main"
 
 [dependency-groups]
