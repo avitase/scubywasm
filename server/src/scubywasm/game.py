@@ -21,6 +21,7 @@ class Game:
         init_poses=None,
         seed=None,
         engine_cfg=None,
+        agent_fuel_limit=None,
     ):
         self.ticks = 0
 
@@ -29,13 +30,17 @@ class Game:
         )
 
         n, m = len(agent_wasms), agent_multiplicity
-        agent_store = wasmtime.Store()
+
+        cfg = wasmtime.Config()
+        cfg.consume_fuel = agent_fuel_limit is not None
+        agent_store = wasmtime.Store(wasmtime.Engine(cfg))
         agents = [
             Agent(
                 agent_wasm,
                 store=agent_store,
                 n_agents_total=n * m,
                 engine_cfg=self._engine.config,
+                fuel_capacity=agent_fuel_limit,
             )
             for agent_wasm in agent_wasms
         ]
@@ -77,6 +82,7 @@ class Game:
                     agent_id: dict(x=[], y=[], lifetime=[]) for agent_id in batch
                 },
                 "scores": [],
+                "fuel": [],
             }
             for batch in batched_agent_ids
         ]
@@ -94,10 +100,12 @@ class Game:
         }
 
     def tick(self, n_times=1):
-        team_alive = [False] * len(self._teams)
-        for i, (agent, agent_ids) in enumerate(self._teams):
+        for agent, _ in self._teams:
+            agent.refuel()
             agent.clear_world_state()
 
+        team_alive = [False] * len(self._teams)
+        for i, (_, agent_ids) in enumerate(self._teams):
             acc_score = 0
             for agent_id in agent_ids:
                 is_alive = self._engine.is_alive(agent_id)
@@ -130,7 +138,11 @@ class Game:
         for agent, agent_ids in self._teams:
             for agent_id in agent_ids:
                 action = agent.make_action(agent_id, self.ticks)
-                self._engine.set_action(agent_id, action)
+                if action is not None:
+                    self._engine.set_action(agent_id, action)
+
+        for i, (agent, _) in enumerate(self._teams):
+            self._log[i]["fuel"].append(agent.fuel_level)
 
         n_teams_alive = sum(team_alive)
         if n_teams_alive > 1:
@@ -151,6 +163,9 @@ def main():
         "--multiplicity", default=1, type=int, help="Agent multiplicity. (Default: 1)"
     )
     parser.add_argument(
+        "--fuel_limit", type=int, help="Fuel limit for agent calls. (Default: None)"
+    )
+    parser.add_argument(
         "--max_ticks",
         default=max_ticks,
         type=int,
@@ -167,10 +182,22 @@ def main():
     args = parser.parse_args()
     max_ticks = max(1, args.max_ticks)
 
+    if args.multiplicity < 1:
+        parser.error(f"--multiplicity must be >= 1 (got {args.multiplicity})")
+
+    if args.fuel_limit is not None and args.fuel_limit < 100:
+        parser.error(
+            f"--fuel_limit must be (much) larger than 100 (got {args.fuel_limit})"
+        )
+
     engine_wasm = args.engine_wasmfile.read_bytes()
     agent_wasms = [file_name.read_bytes() for file_name in args.agent_wasmfile]
     game = Game(
-        engine_wasm, agent_wasms, seed=args.seed, agent_multiplicity=args.multiplicity
+        engine_wasm,
+        agent_wasms,
+        seed=args.seed,
+        agent_multiplicity=args.multiplicity,
+        agent_fuel_limit=args.fuel_limit,
     )
 
     for _ in range(max_ticks):

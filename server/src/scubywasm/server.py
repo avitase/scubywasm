@@ -105,6 +105,9 @@ def main():
         help=f"Max. number of ticks. (Default: {max_ticks})",
     )
     parser.add_argument(
+        "--fuel_limit", type=int, help="Fuel limit for agent calls. (Default: None)"
+    )
+    parser.add_argument(
         "--log_dir",
         default=log_dir,
         type=pathlib.Path,
@@ -127,6 +130,9 @@ def main():
     if args.multiplicity < 1:
         parser.error(f"--multiplicity must be >= 1 (got {args.multiplicity})")
 
+    if args.fuel_limit < 100:
+        parser.error(f"--multiplicity must be >= 100 (got {args.fuel_limit})")
+
     if args.max_ticks < 1:
         parser.error(f"--max_ticks must be >= 1 (got {args.max_ticks})")
 
@@ -137,6 +143,7 @@ def main():
         agents_dir=args.agents_dir,
         agent_multiplicity=args.multiplicity,
         max_ticks=args.max_ticks,
+        agent_fuel_limit=args.fuel_limit,
     )
 
     logger = Logger(args.log_dir, verbose=args.verbose)
