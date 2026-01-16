@@ -25,7 +25,16 @@ def fuel_guard(fn):
 
 
 class Agent:
-    def __init__(self, wasm, *, store, n_agents_total, engine_cfg, fuel_capacity):
+    def __init__(
+        self,
+        wasm,
+        *,
+        store,
+        n_agents_total,
+        agent_multiplicity,
+        engine_cfg,
+        fuel_capacity,
+    ):
         self._module = WASMModule(wasm, store=store)
 
         self._trapped = False
@@ -36,7 +45,7 @@ class Agent:
             if self._fuel_capacity is not None:
                 self._module.store.set_fuel(self._fuel_level)
 
-            self._ctx = self._module.init_agent(n_agents_total)
+            self._ctx = self._module.init_agent(n_agents_total, agent_multiplicity)
 
             for i, value in enumerate(
                 [

@@ -19,7 +19,7 @@ enum ConfigParameter : unsigned int
 
 struct Context;
 
-struct Context *init_agent(uint32_t n_agents);
+struct Context *init_agent(uint32_t n_agents, uint32_t agent_multiplicity);
 
 void free_context(struct Context *ctx);
 

@@ -39,6 +39,7 @@ class Game:
                 agent_wasm,
                 store=agent_store,
                 n_agents_total=n * m,
+                agent_multiplicity=m,
                 engine_cfg=self._engine.config,
                 fuel_capacity=agent_fuel_limit,
             )
