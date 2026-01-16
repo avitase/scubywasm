@@ -1,4 +1,4 @@
-#include "simple_agent.h"
+#include "scubywasm_agent.h"
 
 #include <stddef.h>
 #include <stdint.h>

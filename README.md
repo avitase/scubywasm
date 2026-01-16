@@ -34,7 +34,7 @@ Please feel free to reverse engineer further rules from our [game engine impleme
 
 ## How to write bots/agents?
 Implementing your own agent is simple once you've figured out how to compile your favorite programming language into a WASM module.
-See [agents/simple_agent.c](agents/simple_agent.c) for an example of a very simple valid agent that implements the required [API](agents/simple_agent.h).
+See [agents/simple_agent.c](agents/simple_agent.c) for an example of a very simple valid agent that implements the required [API](agents/scubywasm_agent.h).
 
 ## How to run a server?
 The stuff under [engine/](engine/) is serious craftsmanship that we are proud of... not such much the scripts under [server/](server/).
