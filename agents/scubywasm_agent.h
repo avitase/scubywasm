@@ -1,5 +1,5 @@
-#ifndef SIMPLE_AGENT_H
-#define SIMPLE_AGENT_H
+#ifndef SCUBYWASM_AGENT_H
+#define SCUBYWASM_AGENT_H
 
 #include <stdint.h>
 
@@ -57,4 +57,4 @@ uint32_t make_action(struct Context *ctx, uint32_t agent_id, uint32_t tick);
 #ifdef __cplusplus
 }
 #endif
-#endif // SIMPLE_AGENT_H
+#endif // SCUBYWASM_AGENT_H
