@@ -8,6 +8,15 @@ extern "C"
 {
 #endif
 
+enum ActionFlags : unsigned int
+{
+    ACTION_NONE = 0x00,
+    ACTION_THRUST = 0x01,
+    ACTION_TURN_LEFT = 0x02,
+    ACTION_TURN_RIGHT = 0x04,
+    ACTION_FIRE = 0x08,
+};
+
 enum ConfigParameter : unsigned int
 {
     CFG_SHIP_MAX_TURN_RATE = 0,
