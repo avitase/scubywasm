@@ -8,9 +8,14 @@ Scubywasm is the rightful heir and modern reincarnation of the infamous [Scubywa
 Scubywasm is (certainly a good idea and) a game engine than runs bots, aka _agents_, provided as WASM modules.
 
 > [!NOTE]
-> **Shortcut for `server/` users:** You do not have to compile WASM locally just to try the Python tooling.
-> The CI workflows publish ready-to-use artifacts for `engine.wasm` and a minimal valid agent (`simple_agent.wasm`).
-> See [Prebuilt WASM artifacts (from CI)](#prebuilt-wasm-artifacts-from-ci).
+> **Shortcut for `server/` users:** you do not have to compile WASM locally just to try the Python tooling.
+>
+> **Latest builds (from `main`, published on the docs page):**
+> - [`engine.wasm`](https://avitase.github.io/scubywasm/downloads/latest/engine.wasm)
+>   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/engine.wasm.sha256)
+> - [`simple_agent.wasm`](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm)
+>   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm.sha256)
+> - [build info (manifest.txt)](https://avitase.github.io/scubywasm/downloads/latest/manifest.txt)
 
 The concept is: rather than transmitting agent actions, simply send the entire program!
 This is fun and allows for a (1) fair, (2) rapid, and (3) massively parallel execution; concretely:
@@ -75,27 +80,10 @@ uv run scubywasm-server --help
 
 The help menus of the three scripts `scubywasm` (a simple runner of a single round), `scubywasm-show` (a reply viewer of a round), and `scubywasm-server` (a simple game server) should give you enough information on what they are and how to use them. (If not, we do accept PRs!)
 
-In case you are wondering _where the hack do I get the engine WASM from!?_, either run
+In case you are wondering _where the hack do I get the engine WASM from!?_, either download them for our docs page (find the link at the top of this document), or run
 
 ```bash
 cd scubywasm/engine
 make
 ```
-this should compile the engine to `engine/build/engine.wasm` (of course this is also a WASM module!) or use ...
-
-## Prebuilt WASM artifacts (from CI)
-
-If you only want to run the Python tooling under `server/` (or quickly smoke-test the project), you do not have to build WASM locally.
-The CI workflows publish ready-to-use artifacts:
-
-- `engine.wasm` (the game engine)
-- `simple_agent.wasm` (a minimal, valid agent implementation)
-
-Where to get them:
-
-1. Open the repository's **Actions** page on GitHub.
-2. Select the workflow you need:
-   - **Engine CI** (builds `engine.wasm`)
-   - **Agents CI** (builds `simple_agent.wasm`)
-3. Open the most recent **successful** run on `main`.
-4. Download the **Artifacts** from that run (GitHub will provide a `.zip`) and extract it locally.
+this should compile the engine to `engine/build/engine.wasm`. (Of course this is also a WASM module!) 
