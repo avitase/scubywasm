@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release-wasm:
+    name: Upload WASM release assets
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    env:
+      TAG: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build engine.wasm
+        run: make -C engine
+
+      - name: Build simple_agent.wasm
+        run: make -C agents
+
+      - name: Prepare release assets
+        run: |
+          set -e
+          mkdir -p dist
+
+          cp engine/build/engine.wasm dist/engine.wasm
+          cp agents/build/simple_agent.wasm dist/simple_agent.wasm
+
+          sha256sum dist/engine.wasm > dist/engine.wasm.sha256
+          sha256sum dist/simple_agent.wasm > dist/simple_agent.wasm.sha256
+
+          cat > dist/manifest.txt <<EOF
+          tag: ${TAG}
+          commit: ${GITHUB_SHA}
+          EOF
+
+      - name: Create release (if missing) and upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          gh release view "${TAG}" >/dev/null 2>&1 || \
+            gh release create "${TAG}" --title "${TAG}" --notes "" --target "${GITHUB_SHA}"
+
+          gh release upload "${TAG}" \
+            dist/engine.wasm dist/engine.wasm.sha256 \
+            dist/simple_agent.wasm dist/simple_agent.wasm.sha256 \
+            dist/manifest.txt \
+            --clobber
+

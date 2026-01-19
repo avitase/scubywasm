@@ -16,6 +16,7 @@ Scubywasm is (certainly a good idea and) a game engine than runs bots, aka _agen
 > - [`simple_agent.wasm`](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm)
 >   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm.sha256)
 > - [build info (manifest.txt)](https://avitase.github.io/scubywasm/downloads/latest/manifest.txt)
+> Prefer stable, versioned files? Grab the same assets from [GitHub Releases](https://github.com/avitase/scubywasm/releases/latest).
 
 The concept is: rather than transmitting agent actions, simply send the entire program!
 This is fun and allows for a (1) fair, (2) rapid, and (3) massively parallel execution; concretely:
