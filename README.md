@@ -16,13 +16,14 @@ Scubywasm is (certainly a good idea and) a game engine than runs bots, aka _agen
 > - [`simple_agent.wasm`](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm)
 >   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm.sha256)
 > - [build info (manifest.txt)](https://avitase.github.io/scubywasm/downloads/latest/manifest.txt)
+>
 > Prefer stable, versioned files? Grab the same assets from [GitHub Releases](https://github.com/avitase/scubywasm/releases/latest).
 
-The concept is: rather than transmitting agent actions, simply send the entire program!
+The game concept is: rather than transmitting agent actions, simply send the entire program!
 This is fun and allows for a (1) fair, (2) rapid, and (3) massively parallel execution; concretely:
- 1. Fair: We have a long history of building agents that read world states over the wire, analyze/compute actions locally, and finally send their actions back via TCP/IP. Typically, servers don't wait for clients, which gives an edge to clients with beefier machines and shorter cables. This blatant injustice is over! In Scubywasm, each agent is given a finite instruction budget (aka _fuel_ or _gas_) that cannot be exceeded, and since everything runs on the same silicon, unstable or brittle network connections are no longer an issue.
- 2. Rapid: Synchronization and latency are no longer issues either. Nowadays, WASM execution is fast (broadly speaking), and running rounds (of the Scubywasm game) within seconds is possible, allowing for rapid, sampling-based inference of who has written the best bot/agent!
- 3. Parallel: Since we have all the code in one place, nothing stops us from running multiple rounds in parallel (this problem is virtually embarrassingly parallel!), yielding even faster samples.
+ 1. **Fair:** We have a long history of building agents that read world states over the wire, analyze/compute actions locally, and finally send their actions back via TCP/IP. Typically, servers don't wait for clients, which gives an edge to clients with beefier machines and shorter cables. This blatant injustice is over! In Scubywasm, each agent is given a finite instruction budget (aka _fuel_ or _gas_) that cannot be exceeded, and since everything runs on the same silicon, unstable or brittle network connections are no longer an issue.
+ 2. **Rapid:** Synchronization and latency are no longer issues either. Nowadays, WASM execution is fast (broadly speaking), and running rounds (of the Scubywasm game) within seconds is possible, allowing for rapid, sampling-based inference of who has written the best bot/agent!
+ 3. **Parallel:** Since we have all the code in one place, nothing stops us from running multiple rounds in parallel (this problem is virtually embarrassingly parallel!), yielding even faster samples.
 
 ## The Game
 Scubywasm is a _tick_-based simulation of spherical spaceships on a flat 2D unit torus.
