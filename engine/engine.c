@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "scubywasm_engine.h"
 
 #include <stddef.h>
 #include <stdint.h>

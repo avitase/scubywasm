@@ -72,12 +72,12 @@ build/coverage.txt: build/coverage.profdata
 coverage: build/coverage.lcov build/coverage.txt
 
 format:
-	$(CLANG_FORMAT) -Wno-error=unknown -i engine.h
+	$(CLANG_FORMAT) -Wno-error=unknown -i scubywasm_engine.h
 	$(CLANG_FORMAT) -Wno-error=unknown -i engine.c
 	$(CLANG_FORMAT) -Wno-error=unknown -i test/engine_tests.c
 
 check-format:
-	$(CLANG_FORMAT) -Wno-error=unknown --dry-run --Werror engine.h
+	$(CLANG_FORMAT) -Wno-error=unknown --dry-run --Werror scubywasm_engine.h
 	$(CLANG_FORMAT) -Wno-error=unknown --dry-run --Werror engine.c
 	$(CLANG_FORMAT) -Wno-error=unknown --dry-run --Werror test/engine_tests.c
 

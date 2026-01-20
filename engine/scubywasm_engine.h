@@ -1,8 +1,8 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef SCUBYWASM_ENGINE_H
+#define SCUBYWASM_ENGINE_H
 
 /**
- * \file engine.h
+ * \file scubywasm_engine.h
  * \anchor scubywasm_engine_api
  * \brief Scubywasm engine ABI.
  *
@@ -511,4 +511,4 @@ get_shot_pose(const struct Context *ctx, uint32_t agent_id, struct Pose *pose);
 #ifdef __cplusplus
 }
 #endif
-#endif // ENGINE_H
+#endif // SCUBYWASM_ENGINE_H

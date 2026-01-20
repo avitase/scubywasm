@@ -11,7 +11,7 @@ HTML_OUTPUT            = html
 # --- Inputs ---
 # Only document the agent API header, plus the Markdown landing page.
 INPUT                  = agents/scubywasm_agent.h \
-                         engine/engine.h \
+                         engine/scubywasm_engine.h \
                          doc/index.md
 FILE_PATTERNS          = *.h *.md
 RECURSIVE              = NO
