@@ -41,6 +41,7 @@
  * state.
  *
  * **Required exported functions**
+
  * A valid agent WASM module must export and implement these entry points (C
  * ABI). All other declarations in this header exist to document the semantics
  * of these functions and their parameter types.
@@ -119,9 +120,12 @@
  * **Coordinate conventions**
  *
  * The implicit coordinate conventions are:
- *  - \c x and \c y live on the unit torus with \c x and \c y in [0, 1)
- *  - \c heading is in [0, 360) degrees with 0 deg = up, 90 deg = right,
- *    180 deg = down, and 270 deg = left.
+ *  - \c x and \c y live on a unit torus with values in [0, 1).
+ *  - \c heading is in degrees in [0, 360) with:
+ *      - 0 deg = up,
+ *      - 90 deg = right,
+ *      - 180 deg = down,
+ *      - 270 deg = left.
  */
 
 #include <stdint.h>
@@ -148,7 +152,7 @@ extern "C"
 enum ActionFlags : unsigned int
 {
     /** Do nothing this tick. */
-    ACTION_NONE = 0x00u,
+    ACTION_NONE = 0U,
 
     /**
      * Enable thrust for this tick.
@@ -158,7 +162,7 @@ enum ActionFlags : unsigned int
      * \c CFG_SHIP_MAX_VELOCITY. If \c ACTION_THRUST is not set, the ship's
      * velocity is set to zero.
      */
-    ACTION_THRUST = 0x01u,
+    ACTION_THRUST = 1U,
 
     /**
      * Turn left for this tick.
@@ -167,16 +171,16 @@ enum ActionFlags : unsigned int
      * changed by \c CFG_SHIP_MAX_TURN_RATE degrees (left) for this tick. If it
      * is not set, no left turn is applied.
      */
-    ACTION_TURN_LEFT = 0x02u,
+    ACTION_TURN_LEFT = 2U,
 
     /**
      * Turn right for this tick.
      *
      * Turning is binary: if \c ACTION_TURN_RIGHT is set, the ship's heading is
-     * changed by exactly \c CFG_SHIP_MAX_TURN_RATE degrees (right) for this
-     * tick. If it is not set, no right turn is applied.
+     * changed by \c CFG_SHIP_MAX_TURN_RATE degrees (right) for this tick. If it
+     * is not set, no right turn is applied.
      */
-    ACTION_TURN_RIGHT = 0x04u,
+    ACTION_TURN_RIGHT = 4U,
 
     /**
      * Fire a shot.
@@ -185,7 +189,7 @@ enum ActionFlags : unsigned int
      * \c CFG_SHOT_LIFETIME ticks. Each \c agent_id may have at most one active
      * shot at a time; if a shot is already active, firing is ignored.
      */
-    ACTION_FIRE = 0x08u,
+    ACTION_FIRE = 8U,
 };
 
 /**
@@ -208,7 +212,7 @@ enum ConfigParameter : unsigned int
      * If \c ACTION_TURN_LEFT or \c ACTION_TURN_RIGHT is set, the ship's
      * heading is changed by this value.
      */
-    CFG_SHIP_MAX_TURN_RATE = 0,
+    CFG_SHIP_MAX_TURN_RATE = 0U,
 
     /**
      * Ship speed when thrust is enabled (in torus-units per tick).
@@ -216,7 +220,7 @@ enum ConfigParameter : unsigned int
      * If \c ACTION_THRUST is set, the ship's velocity is set to this value. If
      * \c ACTION_THRUST is not set, the ship's velocity is zero.
      */
-    CFG_SHIP_MAX_VELOCITY = 1,
+    CFG_SHIP_MAX_VELOCITY = 1U,
 
     /**
      * Ship hit radius (in torus-units).
@@ -224,7 +228,7 @@ enum ConfigParameter : unsigned int
      * Ships are considered colliding/touching when their distance satisfies the
      * engine's collision criterion derived from this radius.
      */
-    CFG_SHIP_HIT_RADIUS = 2,
+    CFG_SHIP_HIT_RADIUS = 2U,
 
     /**
      * Shot velocity (in torus-units per tick).
@@ -232,14 +236,14 @@ enum ConfigParameter : unsigned int
      * Determines how far a shot advances per tick after \c ACTION_FIRE
      * succeeds.
      */
-    CFG_SHOT_VELOCITY = 3,
+    CFG_SHOT_VELOCITY = 3U,
 
     /**
      * Shot lifetime / end-of-life (in ticks).
      *
      * A shot is removed when its lifetime reaches zero.
      */
-    CFG_SHOT_LIFETIME = 4,
+    CFG_SHOT_LIFETIME = 4U,
 };
 
 /**
