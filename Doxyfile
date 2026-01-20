@@ -1,6 +1,6 @@
 # --- Project ---
-PROJECT_NAME           = "Scubywasm Agent API"
-PROJECT_BRIEF          = "C ABI for WebAssembly agents"
+PROJECT_NAME           = "Scubywasm API"
+PROJECT_BRIEF          = "C ABI for WebAssembly agents and engine"
 
 # --- Build / output ---
 OUTPUT_DIRECTORY       = doc/build
@@ -11,6 +11,7 @@ HTML_OUTPUT            = html
 # --- Inputs ---
 # Only document the agent API header, plus the Markdown landing page.
 INPUT                  = agents/scubywasm_agent.h \
+                         engine/engine.h \
                          doc/index.md
 FILE_PATTERNS          = *.h *.md
 RECURSIVE              = NO
@@ -45,9 +46,10 @@ QUIET                  = YES
 # --- Preprocessor ---
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = NO
+PREDEFINED             = FREESTANDING=1
 
-# Treat .h as C (not C++).
-EXTENSION_MAPPING      = h=C
+# Parse .h as C++ for better syntax support
+EXTENSION_MAPPING      = h=C++
 
 # --- Performance ---
 LOOKUP_CACHE_SIZE      = 0
