@@ -366,7 +366,8 @@ void update_score(struct Context *ctx, uint32_t agent_id, int32_t score);
  *
  * \return Bitmask of ::ActionFlags.
  */
-uint32_t make_action(struct Context *ctx, uint32_t agent_id, uint32_t tick);
+enum ActionFlags
+make_action(struct Context *ctx, uint32_t agent_id, uint32_t tick);
 
 #ifdef __cplusplus
 }
