@@ -64,18 +64,18 @@ source .venv/bin/activate
 python -m pip install -U pip
 python -m pip install -e .
 
-scubywasm --help
+scubywasm-run --help
 scubywasm-show --help
 scubywasm-server --help
 ```
 
-or via [uv](https://docs.astral.sh/uv/)
+or via [uv](https://docs.astral.sh/uv/):
 
 ```bash
 cd scubywasm/server
 uv sync
 
-uv run scubywasm --help
+uv run scubywasm-run --help
 uv run scubywasm-show --help
 uv run scubywasm-server --help
 ```
