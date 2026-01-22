@@ -52,14 +52,10 @@ void update_score(struct Context * /*ctx*/,
 {
 }
 
-uint32_t
+enum ActionFlags
 make_action(struct Context * /*ctx*/, uint32_t /*agent_id*/, uint32_t /*tick*/)
 {
-    const uint32_t thrust = 0x01;
-    const uint32_t turn_left = 0x02;
-    const uint32_t fire = 0x08;
-
-    return thrust | turn_left | fire;
+    return ACTION_THRUST | ACTION_TURN_LEFT | ACTION_FIRE;
 }
 
 #ifdef __cplusplus
