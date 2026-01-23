@@ -22,6 +22,7 @@ class Game:
         seed=None,
         engine_cfg=None,
         agent_fuel_limit=None,
+        agent_memory_limit=None,
     ):
         self.ticks = 0
         self._agent_fuel_limit = agent_fuel_limit
@@ -32,21 +33,31 @@ class Game:
 
         n, m = len(agent_wasms), agent_multiplicity
 
-        cfg = wasmtime.Config()
-        cfg.consume_fuel = agent_fuel_limit is not None
-        cfg.wasm_exceptions = True
-        agent_store = wasmtime.Store(wasmtime.Engine(cfg))
-        agents = [
-            Agent(
-                agent_wasm,
-                store=agent_store,
-                n_agents_total=n * m,
-                agent_multiplicity=m,
-                engine_cfg=self._engine.config,
-                init_fuel_level=100 * agent_fuel_limit,
+        agents = []
+        for agent_wasm in agent_wasms:
+            cfg = wasmtime.Config()
+            cfg.consume_fuel = agent_fuel_limit is not None
+            cfg.wasm_exceptions = True
+
+            store = wasmtime.Store(wasmtime.Engine(cfg))
+            store.set_limits(
+                memory_size=agent_memory_limit or -1,
+                memories=1,
+                tables=1,
+                table_elements=10_000,  # magic number... hopefully large enough
+                instances=1,
             )
-            for agent_wasm in agent_wasms
-        ]
+
+            agents.append(
+                Agent(
+                    agent_wasm,
+                    store=store,
+                    n_agents_total=n * m,
+                    agent_multiplicity=m,
+                    engine_cfg=self._engine.config,
+                    init_fuel_level=100 * agent_fuel_limit,  # yet another wild guess
+                )
+            )
 
         if init_poses is not None:
             if len(init_poses) != n * m:
@@ -203,6 +214,16 @@ def main():
         ),
     )
     parser.add_argument(
+        "--memory_limit",
+        default=64_000_000,
+        type=int,
+        metavar="MEMORY",
+        help=(
+            "optional Wasmtime memory limit (in bytes) per agent instance. "
+            "(Default: 64 MB)"
+        ),
+    )
+    parser.add_argument(
         "--max_ticks",
         default=max_ticks,
         type=int,
@@ -228,6 +249,15 @@ def main():
             f"--fuel_limit must be (much) larger than 100 (got {args.fuel_limit})"
         )
 
+    memory_limit = args.memory_limit
+    if memory_limit <= 0:
+        memory_limit = None
+    elif memory_limit < 2 * 65_536:
+        parser.error(
+            "--memory_limit must be larger than 2 pages: 131072 bytes "
+            f"(got {memory_limit})"
+        )
+
     engine_wasm = args.engine_wasmfile.read_bytes()
     agent_wasms = [file_name.read_bytes() for file_name in args.agent_wasmfile]
     game = Game(
@@ -236,6 +266,7 @@ def main():
         seed=args.seed,
         agent_multiplicity=args.multiplicity,
         agent_fuel_limit=args.fuel_limit,
+        agent_memory_limit=memory_limit,
     )
 
     for _ in range(max_ticks):

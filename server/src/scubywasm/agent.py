@@ -10,13 +10,7 @@ def fuel_guard(fn):
             return None
 
         try:
-            if self.fuel_level is None:
-                return fn(self, *args, **kwargs)
-
-            self._module.store.set_fuel(self._fuel_level)
-            res = fn(self, *args, **kwargs)
-            self._fuel_level = self._module.store.get_fuel()
-            return res
+            return fn(self, *args, **kwargs)
         except Exception:
             self._trapped = True
             return None
@@ -38,11 +32,10 @@ class Agent:
         self._module = WASMModule(wasm, store=store, wasi=True)
 
         self._trapped = False
-        self._fuel_level = init_fuel_level
 
         try:
-            if self._fuel_level is not None:
-                self._module.store.set_fuel(self._fuel_level)
+            if init_fuel_level is not None:
+                self._module.store.set_fuel(init_fuel_level)
 
             self._ctx = self._module.init_agent(n_agents_total, agent_multiplicity)
 
@@ -56,19 +49,16 @@ class Agent:
                 ]
             ):
                 self._module.set_config_parameter(self._ctx, i, value)
-
-            if self._fuel_level is not None:
-                self._fuel_level = self._module.store.get_fuel()
         except Exception:
             self._trapped = True
 
     def refuel(self, *, level):
         if not self._trapped:
-            self._fuel_level = level
+            self._module.store.set_fuel(level)
 
     @property
     def fuel_level(self):
-        return self._fuel_level
+        return self._module.store.get_fuel()
 
     @property
     def trapped(self):
