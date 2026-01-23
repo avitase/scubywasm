@@ -33,16 +33,15 @@ class Agent:
         n_agents_total,
         agent_multiplicity,
         engine_cfg,
-        fuel_capacity,
+        init_fuel_level=None,
     ):
-        self._module = WASMModule(wasm, store=store)
+        self._module = WASMModule(wasm, store=store, wasi=True)
 
         self._trapped = False
-        self._fuel_capacity = fuel_capacity
-        self._fuel_level = fuel_capacity
+        self._fuel_level = init_fuel_level
 
         try:
-            if self._fuel_capacity is not None:
+            if self._fuel_level is not None:
                 self._module.store.set_fuel(self._fuel_level)
 
             self._ctx = self._module.init_agent(n_agents_total, agent_multiplicity)
@@ -58,13 +57,14 @@ class Agent:
             ):
                 self._module.set_config_parameter(self._ctx, i, value)
 
-            if self._fuel_capacity is not None:
+            if self._fuel_level is not None:
                 self._fuel_level = self._module.store.get_fuel()
         except Exception:
             self._trapped = True
 
-    def refuel(self):
-        self._fuel_level = self._fuel_capacity
+    def refuel(self, *, level):
+        if not self._trapped:
+            self._fuel_level = level
 
     @property
     def fuel_level(self):

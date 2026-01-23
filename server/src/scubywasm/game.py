@@ -24,6 +24,7 @@ class Game:
         agent_fuel_limit=None,
     ):
         self.ticks = 0
+        self._agent_fuel_limit = agent_fuel_limit
 
         self._engine = Engine(
             engine_wasm, store=wasmtime.Store(), engine_cfg=engine_cfg
@@ -33,6 +34,7 @@ class Game:
 
         cfg = wasmtime.Config()
         cfg.consume_fuel = agent_fuel_limit is not None
+        cfg.wasm_exceptions = True
         agent_store = wasmtime.Store(wasmtime.Engine(cfg))
         agents = [
             Agent(
@@ -41,7 +43,7 @@ class Game:
                 n_agents_total=n * m,
                 agent_multiplicity=m,
                 engine_cfg=self._engine.config,
-                fuel_capacity=agent_fuel_limit,
+                init_fuel_level=100 * agent_fuel_limit,
             )
             for agent_wasm in agent_wasms
         ]
@@ -102,7 +104,7 @@ class Game:
 
     def tick(self, n_times=1):
         for agent, _ in self._teams:
-            agent.refuel()
+            agent.refuel(level=self._agent_fuel_limit)
             agent.clear_world_state()
 
         team_alive = [False] * len(self._teams)

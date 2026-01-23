@@ -52,7 +52,7 @@ void update_score(struct Context * /*ctx*/,
 {
 }
 
-enum ActionFlags
+uint32_t
 make_action(struct Context * /*ctx*/, uint32_t /*agent_id*/, uint32_t /*tick*/)
 {
     return ACTION_THRUST | ACTION_TURN_LEFT | ACTION_FIRE;

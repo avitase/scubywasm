@@ -28,3 +28,29 @@ jobs:
       - name: Run linter
         working-directory: agents
         run: make lint
+
+
+  build-lua-agent:
+    name: Build Lua agent
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install WASI SDK
+        id: wasi-sdk
+        # TODO: Switch to a tagged release once the action publishes stable version tags.
+        uses: bytecodealliance/setup-wasi-sdk-action@main
+        with:
+          version: 29
+
+      - name: Build lua_agent.wasm
+        working-directory: agents
+        run: make WASI_SDK_PATH="${{ steps.wasi-sdk.outputs.wasi-sdk-path }}" build/lua_agent.wasm
+      
+      - name: Verify build artifact exists
+        working-directory: agents
+        run: test -f build/lua_agent.wasm

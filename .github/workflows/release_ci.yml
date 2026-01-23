@@ -23,7 +23,7 @@ jobs:
       - name: Build engine.wasm
         run: make -C engine
 
-      - name: Build simple_agent.wasm
+      - name: Build freestanding_agent.wasm
         run: make -C agents
 
       - name: Prepare release assets
@@ -32,10 +32,10 @@ jobs:
           mkdir -p dist
 
           cp engine/build/engine.wasm dist/engine.wasm
-          cp agents/build/simple_agent.wasm dist/simple_agent.wasm
+          cp agents/build/freestanding_agent.wasm dist/freestanding_agent.wasm
 
           sha256sum dist/engine.wasm > dist/engine.wasm.sha256
-          sha256sum dist/simple_agent.wasm > dist/simple_agent.wasm.sha256
+          sha256sum dist/freestanding_agent.wasm > dist/freestanding_agent.wasm.sha256
 
           cat > dist/manifest.txt <<EOF
           tag: ${TAG}
@@ -53,7 +53,7 @@ jobs:
 
           gh release upload "${TAG}" \
             dist/engine.wasm dist/engine.wasm.sha256 \
-            dist/simple_agent.wasm dist/simple_agent.wasm.sha256 \
+            dist/freestanding_agent.wasm dist/freestanding_agent.wasm.sha256 \
             dist/manifest.txt \
             --clobber
 

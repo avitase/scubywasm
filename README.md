@@ -13,8 +13,8 @@ Scubywasm is (certainly a good idea and) a game engine than runs bots, aka _agen
 > **Latest builds (from `main`, published on the docs page):**
 > - [`engine.wasm`](https://avitase.github.io/scubywasm/downloads/latest/engine.wasm)
 >   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/engine.wasm.sha256)
-> - [`simple_agent.wasm`](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm)
->   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/simple_agent.wasm.sha256)
+> - [`freestanding_agent.wasm`](https://avitase.github.io/scubywasm/downloads/latest/freestanding_agent.wasm)
+>   - [sha256](https://avitase.github.io/scubywasm/downloads/latest/freestanding_agent.wasm.sha256)
 > - [build info (manifest.txt)](https://avitase.github.io/scubywasm/downloads/latest/manifest.txt)
 >
 > Prefer stable, versioned files? Grab the same assets from [GitHub Releases](https://github.com/avitase/scubywasm/releases/latest).
@@ -47,7 +47,11 @@ Please feel free to reverse engineer further rules from our [game engine impleme
 
 ## How to write bots/agents?
 Implementing your own agent is simple once you've figured out how to compile your favorite programming language into a WASM module.
-See [agents/simple_agent.c](agents/simple_agent.c) for an example of a very simple valid agent that implements the required [API](https://avitase.github.io/scubywasm/).
+See [agents/freestanding_agent.c](agents/freestanding_agent.c) for an example of a very simple valid agent that implements the required [API](https://avitase.github.io/scubywasm/).
+
+🤫 **Secret side quest:** I also built a small Lua proof-of-concept, mainly to convince myself that this works and as a nice integration test that the [WASI](https://wasi.dev/) setup is sane; not because I think that this is the best way to build agents.
+Concretely: I embedded the Lua VM/runtime *and* the Lua agent code from [agents/lua_agent.lua](agents/lua_agent.lua) into a C file and compiled the whole thing to WASM.
+The result is [agents/lua_agent.c](agents/lua_agent.c), a Lua agent, embedded, interpreted and run in C, compiled to WASM, executed by Wasmtime (written in Rust), and orchestrated from Python (using the `scubywasm-run`, see below) 🤯 - a working (!) agent module with a binary size of <250kB.
 
 ## How to run a server?
 The stuff under [engine/](engine/) is serious craftsmanship that we are proud of... not such much the scripts under [server/](server/).

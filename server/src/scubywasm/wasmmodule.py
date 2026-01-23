@@ -5,12 +5,17 @@ import wasmtime
 
 
 class WASMModule:
-    def __init__(self, wasm, *, store):
+    def __init__(self, wasm, *, store, wasi=False):
         self._store = store
-        self._instance = wasmtime.Instance(
+
+        linker = wasmtime.Linker(self._store.engine)
+        if wasi:
+            self._store.set_wasi(wasmtime.WasiConfig())
+            linker.define_wasi()
+
+        self._instance = linker.instantiate(
             self._store,
             wasmtime.Module(self._store.engine, wasm),
-            [],
         )
         self._memory = self._instance.exports(self._store)["memory"]
 

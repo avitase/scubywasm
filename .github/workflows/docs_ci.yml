@@ -35,7 +35,7 @@ jobs:
           make -C engine
           make -C agents
           sha256sum engine/build/engine.wasm > engine/build/engine.wasm.sha256
-          sha256sum agents/build/simple_agent.wasm > agents/build/simple_agent.wasm.sha256
+          sha256sum agents/build/freestanding_agent.wasm > agents/build/freestanding_agent.wasm.sha256
 
       - name: Inject downloads into site
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -44,8 +44,8 @@ jobs:
           mkdir -p doc/build/html/downloads/latest
           cp engine/build/engine.wasm doc/build/html/downloads/latest/engine.wasm
           cp engine/build/engine.wasm.sha256 doc/build/html/downloads/latest/engine.wasm.sha256
-          cp agents/build/simple_agent.wasm doc/build/html/downloads/latest/simple_agent.wasm
-          cp agents/build/simple_agent.wasm.sha256 doc/build/html/downloads/latest/simple_agent.wasm.sha256
+          cp agents/build/freestanding_agent.wasm doc/build/html/downloads/latest/freestanding_agent.wasm
+          cp agents/build/freestanding_agent.wasm.sha256 doc/build/html/downloads/latest/freestanding_agent.wasm.sha256
 
           cat > doc/build/html/downloads/latest/manifest.txt <<EOF
           commit: ${GITHUB_SHA}

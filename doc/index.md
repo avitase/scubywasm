@@ -30,9 +30,9 @@ If you implement the exported functions with the documented behavior, your WASM 
 
 ### Minimal example implementation
 
-\anchor scubywasm_simple_agent_example
+\anchor scubywasm_freestanding_agent_example
 
-\verbinclude agents/simple_agent.c
+\verbinclude agents/freestanding_agent.c
 
 ## Engine API (hosts and tools)
 
