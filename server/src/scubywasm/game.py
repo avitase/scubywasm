@@ -31,6 +31,8 @@ class Game:
             engine_wasm, store=wasmtime.Store(), engine_cfg=engine_cfg
         )
 
+        rng = random.Random(seed)
+
         n, m = len(agent_wasms), agent_multiplicity
 
         agents = []
@@ -54,6 +56,7 @@ class Game:
                     store=store,
                     n_agents_total=n * m,
                     agent_multiplicity=m,
+                    seed=rng.randint(1, 1 << 32),
                     engine_cfg=self._engine.config,
                     init_fuel_level=100 * agent_fuel_limit,  # yet another wild guess
                 )
@@ -66,8 +69,6 @@ class Game:
                     f"Either pass None or {n * m}."
                 )
         else:
-            rng = random.Random(seed)
-
             grid_size = math.ceil(math.sqrt(n * m))
             grid_spacing = 1.0 / grid_size
             init_poses = [

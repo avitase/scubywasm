@@ -9,7 +9,8 @@ extern "C"
 #endif
 
 struct Context *init_agent(uint32_t /*n_agents*/,
-                           uint32_t /*agent_multiplicity*/)
+                           uint32_t /*agent_multiplicity*/,
+                           uint32_t /*seed*/)
 {
     return NULL;
 }

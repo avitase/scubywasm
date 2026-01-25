@@ -264,10 +264,12 @@ struct Context;
  *
  * \param n_agents Total number of agents in the world (across all teams).
  * \param agent_multiplicity Number of team members.
+ * \param seed 32 random bits that can be used to seed PRNGs.
  *
  * \return A new \c Context instance, or \c NULL on failure.
  */
-struct Context *init_agent(uint32_t n_agents, uint32_t agent_multiplicity);
+struct Context *
+init_agent(uint32_t n_agents, uint32_t agent_multiplicity, uint32_t seed);
 
 /**
  * \brief Destroy an agent context created by ::init_agent().

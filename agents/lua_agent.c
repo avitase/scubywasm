@@ -116,7 +116,8 @@ static void export_constants(lua_State *L)
     lua_setglobal(L, "scubywasm");
 }
 
-struct Context *init_agent(uint32_t n_agents, uint32_t agent_multiplicity)
+struct Context *
+init_agent(uint32_t n_agents, uint32_t agent_multiplicity, uint32_t seed)
 {
     struct Context *ctx = (struct Context *)calloc(1, sizeof(*ctx));
     if (!ctx)
@@ -185,7 +186,8 @@ struct Context *init_agent(uint32_t n_agents, uint32_t agent_multiplicity)
     lua_rawgeti(ctx->L, LUA_REGISTRYINDEX, ctx->ref_init);
     lua_pushinteger(ctx->L, (lua_Integer)n_agents);
     lua_pushinteger(ctx->L, (lua_Integer)agent_multiplicity);
-    if (ctx_pcall(ctx, 2, 0) != 0)
+    lua_pushinteger(ctx->L, (lua_Integer)seed);
+    if (ctx_pcall(ctx, 3, 0) != 0)
     {
         lua_close(ctx->L);
         free(ctx);

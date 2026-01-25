@@ -26,6 +26,7 @@ class Agent:
         store,
         n_agents_total,
         agent_multiplicity,
+        seed,
         engine_cfg,
         init_fuel_level=None,
     ):
@@ -37,7 +38,9 @@ class Agent:
             if init_fuel_level is not None:
                 self._module.store.set_fuel(init_fuel_level)
 
-            self._ctx = self._module.init_agent(n_agents_total, agent_multiplicity)
+            self._ctx = self._module.init_agent(
+                n_agents_total, agent_multiplicity, seed
+            )
 
             for i, value in enumerate(
                 [
