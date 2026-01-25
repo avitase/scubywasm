@@ -95,6 +95,7 @@ class Game:
                 "shots": {
                     agent_id: dict(x=[], y=[], lifetime=[]) for agent_id in batch
                 },
+                "actions": {agent_id: [] for agent_id in batch},
                 "scores": [],
                 "fuel": [],
             }
@@ -149,9 +150,11 @@ class Game:
 
             self._log[i]["scores"].append(acc_score)
 
-        for agent, agent_ids in self._teams:
+        for i, (agent, agent_ids) in enumerate(self._teams):
             for agent_id in agent_ids:
                 action = agent.make_action(agent_id, self.ticks)
+                self._log[i]["actions"][agent_id].append(action)
+
                 if action is not None:
                     self._engine.set_action(agent_id, action)
 
