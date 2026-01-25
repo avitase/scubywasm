@@ -24,10 +24,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install WASI SDK
+        id: wasi-sdk
+        # TODO: Switch to a tagged release once the action publishes stable version tags.
+        uses: bytecodealliance/setup-wasi-sdk-action@main
+        with:
+          version: 29
 
       - name: Run linter
         working-directory: agents
-        run: make lint
+        run: make WASI_SDK_PATH="${{ steps.wasi-sdk.outputs.wasi-sdk-path }}" lint
 
 
   build-lua-agent:

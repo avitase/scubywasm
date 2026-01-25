@@ -174,7 +174,7 @@ check-format:
 build/lint.stamp: freestanding_agent.c $(if $(WASI_SDK_PATH_STRIPPED),lua_agent.c,) | build
 	$(CLANG_TIDY) freestanding_agent.c -- -std=c23 $(WARNINGS) --target=wasm32-unknown-unknown -nostdlib -O0
 ifneq ($(WASI_SDK_PATH_STRIPPED),)
-	$(CLANG_TIDY) lua_agent.c -- -std=c23 $(WARNINGS) --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) -O0 -I. -Ilua -DLUA_32BITS
+	$(CLANG_TIDY) lua_agent.c -- -DLUA_AGENT_FILE=\"$(LUA_AGENT_FILE)\" -std=c23 $(WARNINGS) --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) -O0 -I. -Ilua -DLUA_32BITS
 endif
 	touch $@
 
