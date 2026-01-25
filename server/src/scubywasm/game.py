@@ -239,6 +239,14 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if not args.engine_wasmfile.is_file():
+        parser.error(f"Couldn't open engine WASM file {args.engine_wasmfile!s}")
+
+    for f in args.agent_wasmfile:
+        if not f.is_file():
+            parser.error(f"Couldn't open agent WASM file {f!s}")
+
     max_ticks = max(1, args.max_ticks)
 
     if args.multiplicity < 1:
