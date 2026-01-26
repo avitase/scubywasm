@@ -27,6 +27,10 @@ class Game:
         self.ticks = 0
         self._agent_fuel_limit = agent_fuel_limit
 
+        init_fuel_level = None
+        if agent_fuel_limit is not None:
+            init_fuel_level = 100 * agent_fuel_limit  # wild guess
+
         self._engine = Engine(
             engine_wasm, store=wasmtime.Store(), engine_cfg=engine_cfg
         )
@@ -58,7 +62,7 @@ class Game:
                     agent_multiplicity=m,
                     seed=rng.randint(1, 1 << 32),
                     engine_cfg=self._engine.config,
-                    init_fuel_level=100 * agent_fuel_limit,  # yet another wild guess
+                    init_fuel_level=init_fuel_level,
                 )
             )
 

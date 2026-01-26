@@ -33,9 +33,9 @@ class Agent:
         self._module = WASMModule(wasm, store=store, wasi=True)
 
         self._trapped = False
-
+        self._fuel_limited = init_fuel_level is not None
         try:
-            if init_fuel_level is not None:
+            if self._fuel_limited:
                 self._module.store.set_fuel(init_fuel_level)
 
             self._ctx = self._module.init_agent(
@@ -56,12 +56,12 @@ class Agent:
             self._trapped = True
 
     def refuel(self, *, level):
-        if not self._trapped:
+        if not self._trapped and level is not None:
             self._module.store.set_fuel(level)
 
     @property
     def fuel_level(self):
-        return self._module.store.get_fuel()
+        return self._module.store.get_fuel() if self._fuel_limited else None
 
     @property
     def trapped(self):
