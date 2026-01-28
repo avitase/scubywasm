@@ -23,6 +23,8 @@ class Game:
         engine_cfg=None,
         agent_fuel_limit=None,
         agent_memory_limit=None,
+        default_agent_factory=Agent,
+        agent_factory_overrides=None,
     ):
         self.ticks = 0
         self._agent_fuel_limit = agent_fuel_limit
@@ -39,8 +41,10 @@ class Game:
 
         n, m = len(agent_wasms), agent_multiplicity
 
+        overrides = dict(agent_factory_overrides or {})
+
         agents = []
-        for agent_wasm in agent_wasms:
+        for i, agent_wasm in enumerate(agent_wasms):
             cfg = wasmtime.Config()
             cfg.consume_fuel = agent_fuel_limit is not None
             cfg.wasm_exceptions = True
@@ -54,8 +58,9 @@ class Game:
                 instances=1,
             )
 
+            agent_factory = overrides.get(i, default_agent_factory)
             agents.append(
-                Agent(
+                agent_factory(
                     agent_wasm,
                     store=store,
                     n_agents_total=n * m,
@@ -159,9 +164,7 @@ class Game:
             for agent_id in agent_ids:
                 action = agent.make_action(agent_id, self.ticks)
                 self._log[i]["actions"][agent_id].append(action)
-
-                if action is not None:
-                    self._engine.set_action(agent_id, action)
+                self._engine.set_action(agent_id, action or 0)
 
         for i, (agent, _) in enumerate(self._teams):
             self._log[i]["fuel"].append(agent.fuel_level)
