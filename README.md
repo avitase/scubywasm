@@ -19,7 +19,8 @@ Scubywasm is (certainly a good idea and) a game engine than runs bots, aka _agen
 >
 > Prefer stable, versioned files? Grab the same assets from [GitHub Releases](https://github.com/avitase/scubywasm/releases/latest).
 
-The game concept is: rather than transmitting agent actions, simply send the entire program!
+## Scubywasm's 3-Point Manifesto
+Ship the bot, not the moves. In Scubywasm you submit the entire agent program, not a stream of actions.
 This is fun and allows for a (1) fair, (2) rapid, and (3) massively parallel execution; concretely:
  1. **Fair:** We have a long history of building agents that read world states over the wire, analyze/compute actions locally, and finally send their actions back via TCP/IP. Typically, servers don't wait for clients, which gives an edge to clients with beefier machines and shorter cables. This blatant injustice is over! In Scubywasm, each agent is given a finite instruction budget (aka _fuel_ or _gas_) that cannot be exceeded, and since everything runs on the same silicon, unstable or brittle network connections are no longer an issue.
  2. **Rapid:** Synchronization and latency are no longer issues either. Nowadays, WASM execution is fast (broadly speaking), and running rounds (of the Scubywasm game) within seconds is possible, allowing for rapid, sampling-based inference of who has written the best bot/agent!
