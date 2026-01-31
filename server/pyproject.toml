@@ -1,7 +1,7 @@
 [project]
 name = "scubywasm"
 version = "0.1.0"
-description = "Add your description here"
+description = "Handy Python tools to run Subywasm games"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
