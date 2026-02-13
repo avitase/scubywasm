@@ -261,6 +261,8 @@ def main():
 
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING)
 
+    logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING)
+
     if not args.engine_wasmfile.is_file():
         parser.error(f"Couldn't open engine WASM file {args.engine_wasmfile!s}")
 
